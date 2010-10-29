@@ -13,3 +13,6 @@
 [submodule "modules/kohana-aws"]
 	path = modules/kohana-aws
 	url = http://github.com/jylinman/kohana-aws.git
+[submodule "modules/image"]
+	path = modules/image
+	url = http://github.com/kohana/image.git
