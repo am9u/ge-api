@@ -16,6 +16,10 @@ abstract class Controller_REST extends Kohana_Controller_REST {
     protected $_payload = NULL;
     protected $_status = NULL;
     protected $_xml = NULL;
+    protected $_cached_xml = NULL;
+
+    private $cache = NULL;
+    private $cachekey = NULL;
 
     /**
      * Returns an Model by ID, if $id is specified. Otherwise, returns all Models in the table
@@ -25,46 +29,59 @@ abstract class Controller_REST extends Kohana_Controller_REST {
      */
     public function action_index($id=NULL) 
     {
-        if ( ! empty($id)) 
-        {
-            Kohana::$log->add('action_index', 'tring to load single instance based on $id='.$id);
-            $model = ORM::factory($this->_model_type, $id);    
-            if($model->loaded())
-            {
-                Kohana::$log->add('action_index', 'loaded single instance based on $id');
-                $this->_payload = $model;
-            }
-        }
-        else 
-        {
-            Kohana::$log->add('action_index', 'tring to load multiple instance');
-            $model  = ORM::factory($this->_model_type);
-            if($model->count_all() > 1)
-            {
-                $this->_payload = $model->find_all();
-            }
-            elseif($model->count_all() === 1)
-            {
-                $this->_payload = $model->find();
-            }
-        }
+        // cache response?
+        // $this->cachekey = ($id === NULL ) ? $this->request->action : $this->request->action.'_'.$id;
+        // $this->cache = Cache::instance('memcache');
+        // if($this->cache !== NULL) 
+        // {
+        //     //$this->cache->delete_all();
+        //     $this->_cached_xml = $this->cache->get($this->cachekey);
+        //     // Kohana::$log->add('action_index cached xml', $this->_cached_xml);
+        // }
 
-        //if( ! empty($this->_payload))
-        //{
-            $this->_status = array(
-                'type'    => 'success',
-                'code'    => '1',
-                'message' => 'OK'
-            );
-        //} 
-        //else 
-        //{
-        //    $this->_status = array(
-        //        'type'    => 'error',
-        //        'code'    => '500',
-        //        'message' => 'Error loading '.$this->_model_type
-        //    );
-        //}
+        if($this->_cached_xml === NULL )
+        {
+            if ( ! empty($id)) 
+            {
+                Kohana::$log->add('action_index', 'tring to load single instance based on $id='.$id);
+                $model = ORM::factory($this->_model_type, $id);    
+                if($model->loaded())
+                {
+                    Kohana::$log->add('action_index', 'loaded single instance based on $id');
+                    $this->_payload = $model;
+                }
+            }
+            else 
+            {
+                Kohana::$log->add('action_index', 'tring to load multiple instance');
+                $model  = ORM::factory($this->_model_type);
+                if($model->count_all() > 1)
+                {
+                    $this->_payload = $model->find_all();
+                }
+                elseif($model->count_all() === 1)
+                {
+                    $this->_payload = $model->find();
+                }
+            }
+
+            //if( ! empty($this->_payload))
+            //{
+                $this->_status = array(
+                    'type'    => 'success',
+                    'code'    => '200',
+                    'message' => 'OK'
+                );
+            //} 
+            //else 
+            //{
+            //    $this->_status = array(
+            //        'type'    => 'error',
+            //        'code'    => '500',
+            //        'message' => 'Error loading '.$this->_model_type
+            //    );
+            //}
+        }
     }
 
     public function action_create()
@@ -76,39 +93,38 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // print_r($this->_data);
 
         $model = ORM::factory($this->_model_type);
-        $model
-            ->values($this->_data)
-            ->save();
 
-        if($model->saved())
+        if($model->values($this->_data)->check())
         {
-            //$this->_view = View::factory($this->_model_type.'/create');
-            // $this->_view->set('status', 'success');
-            // $this->_view->set('status_code', 1);
-            // $this->_view->set('status_message', 'Event created');
-            // $this->_view->bind($this->_model_type, $model);
-            $this->_status = array(
-                'type'    => 'success',
-                'code'    => '1',
-                'message' => 'OK'
-            );
+            $model->save();
+        
+            if($model->saved())
+            {
+                $this->_status = array(
+                    'type'    => 'success',
+                    'code'    => '200',
+                    'message' => 'OK'
+                );
+
+                $this->_payload = $model;
+            }
+            else
+            {
+                $this->_status = array(
+                    'type'    => 'error',
+                    'code'    => '500',
+                    'message' => 'Server Error'
+                );
+            }
         }
         else
         {
-            //$this->_view = View::factory($this->_model_type.'/error');
-            // $this->_view->set('status', 'error');
-            // $this->_view->set('status_code', 1);
-            // $this->_view->set('status_message', 'Unable to create Event');
             $this->_status = array(
                 'type'    => 'error',
-                'code'    => '500',
-                'message' => 'Unable to create Event'
+                'code'    => '400',
+                'message' => 'Bad Request'
             );
         }
-
-        $this->_payload = $model;
-
-        //$this->request->response = $out;
     }
 
     public function action_update($id=NULL)
@@ -208,6 +224,12 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             // add payload to response/status element
             $response->import($this->_xml);
 
+            // cache the response object
+            if($this->cache !== NULL)
+            {
+                $this->cache->set($this->cachekey, $response->render());
+            }
+
             $this->request->headers  = array('Content-Type:' => $response->content_type);
             $this->request->response = $response->render();
         }
@@ -218,13 +240,24 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // $this->request->headers = array('Content-Type'	=> 'text/xml; charset=utf-8');
         // $this->request->response = $this->_view;
 
-        $this->_xml = XML::factory($this->_model_type);
-        $this->_render();
+        $this->request->status = $this->_status['code'];
+
+        if($this->_cached_xml !== NULL)
+        {
+            $this->request->headers  = array('Content-Type:' => 'text/xml; charset=utf-8');
+            $this->request->response = $this->_cached_xml;
+        }
+        else
+        {
+            $this->_xml = XML::factory($this->_model_type);
+            $this->_render();
+        }
 
     }
 
     /**
-     * A kludgey hack that should probably be re-written. This method should also probably be a static method on the Controller_REST class or a helper method
+     * A kludgey hack that should probably be re-written. This method should also 
+     * probably be a static method on the Controller_REST class or a helper method
      */
     protected function _parse_form_data($form_data)
     {
@@ -242,14 +275,26 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             array_pop($value); 
 
             // wow. this ternary for setting this regex is really bad! but it handles name=\"foo\" and name="foo"
-            $regex = (Request::instance()->action === 'update') ? '/name=(?:\\\?")(\w*)(?:\\\")|(?:")/' : '/name="(\w*)"/'; 
+            $regex = (Request::instance()->action === 'update') ? '/name=(?:\\\?")([\w\[\]\d]*)(?:\\\")|(?:")/' : '/name="([\w\[\]\d]*)"/'; 
             $values = preg_replace($regex, '$1=', $value);
 
             // massage key/value pairs into associative array for consumption into model
             foreach($values as $k => $v)
             {
                 $kv = preg_split('/=\s/', $v);
-                $newvalues[trim($kv[0])] = trim($kv[1]);
+                if(strpos($kv[0], '[') === FALSE)
+                {
+                    $newvalues[trim($kv[0])] = trim($kv[1]);
+                }
+                else 
+                {
+                    $kn = explode('[', trim($kv[0]));
+                    if( ! isset($newvalues[$kn[0]]))
+                    {
+                        $newvalues[$kn[0]] = array();
+                    }
+                    array_push($newvalues[$kn[0]], trim($kv[1]));
+                }
             }
         }
 
