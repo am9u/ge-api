@@ -19,7 +19,41 @@ abstract class Controller_REST extends Kohana_Controller_REST {
     protected $_cached_xml = NULL;
 
     private $cache = NULL;
-    private $cachekey = NULL;
+
+    protected $_valid_get_actions = NULL;
+
+	/**
+	 * Checks the requested method against the available methods. If the method
+	 * is supported, sets the request action from the map. If not supported,
+	 * the "invalid" action will be called.
+	 */
+	public function before()
+	{
+		$this->_action_requested = $this->request->action;
+
+        Kohana::$log->add('Controller_REST->before() action requested', $this->_action_requested);
+
+        // only allow request to use REST verbs
+		if ( ! isset($this->_action_map[Request::$method]))
+		{
+			$this->request->action = 'invalid';
+		}
+        // allow GET requests to call allowed methods
+		else if(Request::$method === 'GET' AND isset($this->_valid_get_actions[$this->_action_requested]))
+        {
+			$this->request->action = $this->_action_requested;
+        }
+        // default to action map
+        else
+		{
+			$this->request->action = $this->_action_map[Request::$method];
+		}
+
+        Kohana::$log->add($this->request->controller.'->'.$this->request->action, 'action found to invoke');
+
+		return $this;
+	}
+
 
     /**
      * Returns an Model by ID, if $id is specified. Otherwise, returns all Models in the table
@@ -29,68 +63,48 @@ abstract class Controller_REST extends Kohana_Controller_REST {
      */
     public function action_index($id=NULL) 
     {
-        // cache response?
-        // $this->cachekey = ($id === NULL ) ? $this->request->action : $this->request->action.'_'.$id;
-        // $this->cache = Cache::instance('memcache');
-        // if($this->cache !== NULL) 
-        // {
-        //     //$this->cache->delete_all();
-        //     $this->_cached_xml = $this->cache->get($this->cachekey);
-        //     // Kohana::$log->add('action_index cached xml', $this->_cached_xml);
-        // }
+        // cache output for 60 seconds
+        // $this->cache = 60;
 
-        if($this->_cached_xml === NULL )
+        // 
+        if ( ! empty($id)) 
         {
-            if ( ! empty($id)) 
+            $model = ORM::factory($this->_model_type, $id);    
+            if($model->loaded())
             {
-                Kohana::$log->add('action_index', 'tring to load single instance based on $id='.$id);
-                $model = ORM::factory($this->_model_type, $id);    
-                if($model->loaded())
-                {
-                    Kohana::$log->add('action_index', 'loaded single instance based on $id');
-                    $this->_payload = $model;
-                }
+                $this->_payload = $model;
             }
-            else 
-            {
-                Kohana::$log->add('action_index', 'tring to load multiple instance');
-                $model  = ORM::factory($this->_model_type);
-                if($model->count_all() > 1)
-                {
-                    $this->_payload = $model->find_all();
-                }
-                elseif($model->count_all() === 1)
-                {
-                    $this->_payload = $model->find();
-                }
-            }
-
-            //if( ! empty($this->_payload))
-            //{
-                $this->_status = array(
-                    'type'    => 'success',
-                    'code'    => '200',
-                    'message' => 'OK'
-                );
-            //} 
-            //else 
-            //{
-            //    $this->_status = array(
-            //        'type'    => 'error',
-            //        'code'    => '500',
-            //        'message' => 'Error loading '.$this->_model_type
-            //    );
-            //}
         }
+        else 
+        {
+            $model  = ORM::factory($this->_model_type);
+            if($model->count_all() > 1)
+            {
+                $this->_payload = $model->find_all();
+            }
+            elseif($model->count_all() === 1)
+            {
+                $this->_payload = $model->find();
+            }
+        }
+
+        $this->_status = array(
+            'type'    => 'success',
+            'code'    => '200',
+            'message' => 'OK'
+        );
     }
 
+    /**
+     * Creates new record
+     * @method POST
+     */
     public function action_create()
     {
-        $log = Kohana_Log::instance();
         $this->_data = $this->_parse_form_data($_POST);
 
-        // $this->_data  = $this->_parse_form_data($_POST);
-        // print_r($this->_data);
+        // xss security
+        $this->_data = $this->sanitize_values($this->_data);
 
         $model = ORM::factory($this->_model_type);
 
@@ -127,10 +141,16 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         }
     }
 
+    /**
+     * Updates record
+     * @method PUT
+     */ 
     public function action_update($id=NULL)
     {
-        //$values = $this->_parse_form_data($_POST);
         $this->_data = $this->_parse_form_data($_POST);
+
+        // xss security
+        $this->_data = $this->sanitize_values($this->_data);
 
         // load model
         $model = ORM::factory($this->_model_type, $this->_data['id']);
@@ -138,38 +158,42 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // unset ID because that's the primary key!
         unset($this->_data['id']);
 
-        // update
-        $model->values($this->_data)->save();
-
-        if($model->saved())
+        if($model->values($this->_data)->check())
         {
-            //$this->_view = View::factory($this->_model_type/create);
-            // $this->_view->set('status', 'success');
-            // $this->_view->set('status_code', 1);
-            // $this->_view->set('status_message', 'Event updated');
-            // $this->_view->set($this->_model_type, $model);
-            $this->_status = array(
-                'type'    => 'success',
-                'code'    => '200',
-                'message' => 'OK'
-            );
+            $model->save();
+
+            if($model->saved())
+            {
+                $this->_status = array(
+                    'type'    => 'success',
+                    'code'    => '200',
+                    'message' => 'OK'
+                );
+            }
+            else
+            {
+                $this->_status = array(
+                    'type'    => 'error',
+                    'code'    => '500',
+                    'message' => 'Server Error'
+                );
+            }
+
+            $this->_payload = $model;
         }
         else
         {
-            //$this->_view = View::factory($this->_model_type.'/error');
-            // $this->_view->set('status', 'error');
-            // $this->_view->set('status_code', 500);
-            // $this->_view->set('status_message', 'Unable to update event');
             $this->_status = array(
                 'type'    => 'error',
-                'code'    => '500',
-                'message' => 'Unable to create Event'
+                'code'    => '400',
+                'message' => 'Bad Request'
             );
         }
-
-        $this->_payload = $model;
     }
 
+    /**
+     * Deletes record
+     */
     public function action_delete($id=NULL)
     {
         if( ! empty($id))
@@ -177,10 +201,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             $model = ORM::factory($this->_model_type, $id);
             $model->delete();
 
-            //$this->_view = View::factory($this->_model_type.'/success');
-            //$this->_view->set('status', 'success');
-            //$this->_view->set('status_code', 1);
-            //$this->_view->set('status_message', 'Deleted event id '.$id);
             $this->_status = array(
                 'type'    => 'success',
                 'code'    => '200',
@@ -224,17 +244,29 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             // add payload to response/status element
             $response->import($this->_xml);
 
-            // cache the response object
-            if($this->cache !== NULL)
-            {
-                $this->cache->set($this->cachekey, $response->render());
-            }
-
             $this->request->headers  = array('Content-Type:' => $response->content_type);
             $this->request->response = $response->render();
+
+            if ( ! empty($this->cache))
+            {
+                $this->request->headers = array_merge($this->request->headers, Expires::set($this->cache));
+
+                $cache = array(
+                    'status'    => $this->request->status,
+                    'headers'   => $this->request->headers,
+                    'response'  => $this->request->response,
+                    'expiry'    => time() + $this->cache
+                );
+
+                Page::save($_SERVER['REQUEST_URI'], $cache, $this->cache);
+            }
+
         }
     }
 
+    /**
+     * AOP hook for post-action
+     */
     public function after() 
     {
         // $this->request->headers = array('Content-Type'	=> 'text/xml; charset=utf-8');
@@ -242,17 +274,8 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 
         $this->request->status = $this->_status['code'];
 
-        if($this->_cached_xml !== NULL)
-        {
-            $this->request->headers  = array('Content-Type:' => 'text/xml; charset=utf-8');
-            $this->request->response = $this->_cached_xml;
-        }
-        else
-        {
-            $this->_xml = XML::factory($this->_model_type);
-            $this->_render();
-        }
-
+        $this->_xml = XML::factory($this->_model_type);
+        $this->_render();
     }
 
     /**
@@ -301,5 +324,28 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         print_r($newvalues);
 
         return $newvalues;
+    }
+
+    /**
+     * Strips values of possible XSS attempts
+     * @TODO: log when value is dirty?
+     */
+    protected function sanitize_values($values)
+    {
+        $purifier = new Purifier();
+        $clean = array();
+        foreach($values as $key => $value)
+        {
+            if(is_array($value))
+            {
+                $clean[$key] = $this->sanitize_values($value);
+            }
+            else
+            {
+                $clean[$key] = $purifier->clean($value);    
+            }
+        }
+
+        return $clean;
     }
 }
