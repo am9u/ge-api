@@ -3,7 +3,7 @@
 /**
  * Tags are a hierarchal structure
  */
-class Model_Tag extends ORM 
+class Model_Tag extends CacheORM 
 {
     protected $_db = 'event_warehouse';
 

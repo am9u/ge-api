@@ -78,18 +78,19 @@ Kohana::$config->attach(new Kohana_Config_File);
  */
 Kohana::modules(array(
 	// 'auth'       => MODPATH.'auth',       // Basic authentication
-	// 'cache'      => MODPATH.'cache',      // Caching with multiple backends
+	'cache'      => MODPATH.'cache',      // Caching with multiple backends
 	// 'codebench'  => MODPATH.'codebench',  // Benchmarking tool
 	'database'   => MODPATH.'database',   // Database access
-	// 'image'      => MODPATH.'image',      // Image manipulation
+	'image'      => MODPATH.'image',      // Image manipulation
 	'orm'        => MODPATH.'orm',        // Object Relationship Mapping
 	// 'oauth'      => MODPATH.'oauth',      // OAuth authentication
 	// 'pagination' => MODPATH.'pagination', // Paging of results
-	// 'unittest'   => MODPATH.'unittest',   // Unit testing
+	'unittest'   => MODPATH.'unittest',   // Unit testing
 	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	'rest'          => MODPATH.'rest',       // REST client
 	'xml'           => MODPATH.'xml',       // XML utility library 
 	'rest_api'      => MODPATH.'rest_api',  // REST-ful API 
+	'kohana-aws'    => MODPATH.'kohana-aws', // Kohana wrapper for php-aws library
 	));
 
 /**
@@ -108,8 +109,47 @@ if ( ! defined('SUPPRESS_REQUEST'))
 	 * Execute the main request. A source of the URI can be passed, eg: $_SERVER['PATH_INFO'].
 	 * If no source is specified, the URI will be automatically detected.
 	 */
-	echo Request::instance()
-		->execute()
-		->send_headers()
-		->response;
+    // Get the instance of the request
+    $request = Request::instance();
+
+    // If page cache is loaded read the request variables from the cache
+    if ($page = Page::load($_SERVER['REQUEST_URI']))
+    {
+        if (Expires::get())
+        {
+            $request->status    = 304;
+            $request->response  = ''; 
+        }
+        else
+        {
+            $request->status    = $page['status'];
+            $request->response  = $page['response'];
+        }
+
+        $request->headers   = $page['headers'];
+    }
+    else
+    {
+        // Attempt to execute the response
+        $request->response = (string) $request->execute()->response;
+    }
+
+    // Send headers and replace memory_usage and execution_time variables   
+    if ($request->send_headers()->response)
+    {
+        // Get the total memory and execution time
+        $total = array(
+            '{memory_usage}'   => number_format((memory_get_peak_usage() - KOHANA_START_MEMORY) / (1024*1024), 2).'MB',
+            '{execution_time}' => number_format(microtime(TRUE) - KOHANA_START_TIME, 4).' seconds'
+            );
+
+        // Insert the totals into the response
+        $request->response = str_replace(array_keys($total), $total, $request->response);
+    }
+
+    /**
+     * Display the request response.
+     */
+    echo $request->response;
 }
+

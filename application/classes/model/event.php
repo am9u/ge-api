@@ -2,8 +2,9 @@
 
 /**
  * @TODO: add timezone support
+ * @TODO: refactor Model_Event::check(), Model_Event::values() and Model_Event::save() to match functionality in Model_Venue
  */
-class Model_Event extends ORM 
+class Model_Event extends CacheORM 
 {
     protected $_db = 'event_warehouse';
 
@@ -32,8 +33,8 @@ class Model_Event extends ORM
     public function values($values)
     {
 
-        print_r($values);
-        Kohana::$log->add('event->create() tags size', count($values['tags'])); 
+        //print_r($values);
+        //Kohana::$log->add('event->create() tags size', count($values['tags'])); 
         // Kohana::$log->add('event->create() tags is array', is_array($values->tags));
 
         if(isset($values['tags']) AND is_array($values['tags']))

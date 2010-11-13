@@ -69,7 +69,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // 
         if ( ! empty($id)) 
         {
-            $model = ORM::factory($this->_model_type, $id);    
+            $model = CacheORM::factory($this->_model_type, $id);    
             if($model->loaded())
             {
                 $this->_payload = $model;
@@ -77,7 +77,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         }
         else 
         {
-            $model  = ORM::factory($this->_model_type);
+            $model  = CacheORM::factory($this->_model_type);
             if($model->count_all() > 1)
             {
                 $this->_payload = $model->find_all();
@@ -106,7 +106,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // xss security
         $this->_data = $this->sanitize_values($this->_data);
 
-        $model = ORM::factory($this->_model_type);
+        $model = CacheORM::factory($this->_model_type);
 
         if($model->values($this->_data)->check())
         {

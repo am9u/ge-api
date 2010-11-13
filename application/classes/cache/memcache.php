@@ -41,7 +41,7 @@ class Cache_Memcache extends Kohana_Cache_Memcache
 
             array_walk($values, array($this, '_sanitize_value'));
 
-            $results = array_fill_keys($keys, $default)
+            $results = array_fill_keys($id, $default);
 
             return array_merge($results, $values);
         }
