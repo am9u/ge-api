@@ -22,3 +22,6 @@
 [submodule "modules/unittest"]
 	path = modules/unittest
 	url = git://github.com/kohana/unittest.git
+[submodule "modules/mongodb-php-odm"]
+	path = modules/mongodb-php-odm
+	url = https://github.com/colinmollenhour/mongodb-php-odm.git
