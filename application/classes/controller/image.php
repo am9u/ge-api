@@ -55,8 +55,8 @@ class Controller_Image extends Controller_REST
             // mongodb document
             $image = new Model_Image();
 
-            $image->name = $file->name;
-            $image->url  = $path;
+            $image->title = $file->name;
+            $image->url   = $path;
 
             $image->save();
 
