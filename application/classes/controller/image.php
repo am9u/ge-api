@@ -81,6 +81,8 @@ class Controller_Image extends Controller_REST
                 'code'    => '200',
                 'message' => 'OK. Image id='.$image->id.' uploaed to '.$path
             );
+
+            $this->_payload = $image;
         } 
         else 
         {
