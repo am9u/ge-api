@@ -22,7 +22,8 @@ class Controller_Image extends Controller_REST
 
         // $this->request->response = 'photo index:<br/>'.$out;
 
-        $image = new Model_Image()->load('{id:'.$id.'}');
+        $image = new Model_Image();
+        $image->load('{id:'.$id.'}');
 
         $this->_status = array(
             'type'    => 'success',
