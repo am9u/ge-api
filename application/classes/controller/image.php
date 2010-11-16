@@ -11,16 +11,18 @@ class Controller_Image extends Controller_REST
      */
     public function action_index($id=NULL)
     {
-        $image = ORM::factory('image', 1);
-        $out   = $image->name.'<br/>';
+        // $image = ORM::factory('image', 1);
+        // $out   = $image->name.'<br/>';
 
-        $image_url = $image->imageurls->find(); // $image_urls = ->find_all()
-        $profile = $image_url->profile; // profile is collection of metadata about image type: dimensions, quality, etc.
+        // $image_url = $image->imageurls->find(); // $image_urls = ->find_all()
+        // $profile = $image_url->profile; // profile is collection of metadata about image type: dimensions, quality, etc.
 
-        $out .= $image_url->url.'<br/>';
-        $out .= $profile->name.'<br/>';
+        // $out .= $image_url->url.'<br/>';
+        // $out .= $profile->name.'<br/>';
 
-        $this->request->response = 'photo index:<br/>'.$out;
+        // $this->request->response = 'photo index:<br/>'.$out;
+
+        //$image = n
     }
 
     /**
@@ -38,7 +40,6 @@ class Controller_Image extends Controller_REST
             $file = $_FILES['photo'];
             //$image = ORM::factory('image');
 
-            //$image->name = $file->name;
 
             // save local copy
             $path = Upload::save($file, NULL, 'uploads'); // returns absolute path on filesystem
@@ -51,10 +52,18 @@ class Controller_Image extends Controller_REST
 
             // todo: upload to aws.s3
 
+            // mongodb document
+            $image = new Model_Image();
+
+            $image->name = $file->name;
+            $image->url  = $path;
+
+            $image->save();
+
             $this->_status = array(
                 'type'    => 'success',
                 'code'    => '200',
-                'message' => 'OK. Image uploaed to '.$path
+                'message' => 'OK. Image id='.$image->id.' uploaed to '.$path
             );
         } 
         else 
