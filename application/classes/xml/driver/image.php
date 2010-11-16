@@ -2,7 +2,7 @@
 
 class XML_Driver_Image extends XML_Driver_Model
 {
-	public $root_node = 'events';
+	public $root_node = 'images';
 
     protected $_schema = array(
         'name' => array(),
@@ -26,6 +26,8 @@ class XML_Driver_Image extends XML_Driver_Model
     {
         // return $this->_add_model('event', $model);
         $image = $this->add_node('image', NULL, array('id' => $model->id));
+        $image->add_node('name', $model->name);
+        $image->add_node('url', $model->url);
 
         // $event->add_node('datetime', $model->datetime);
         // $event->add_node('name', $model->name);

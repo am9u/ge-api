@@ -26,6 +26,8 @@ class Controller_Image extends Controller_REST
 
         $image->load('{_id:"'.$id.'"}');
 
+        $this->_payload = $image;
+
         $this->_status = array(
             'type'    => 'success',
             'code'    => '200',
