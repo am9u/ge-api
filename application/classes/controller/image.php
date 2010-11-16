@@ -23,6 +23,13 @@ class Controller_Image extends Controller_REST
         // $this->request->response = 'photo index:<br/>'.$out;
 
         $image = new Model_Image($id);
+
+        $this->_status = array(
+            'type'    => 'success',
+            'code'    => '200',
+            'message' => 'OK'
+        );
+
         $this->request->response = 'photo name='.$image->name.' url='.$image->url;
     }
 
