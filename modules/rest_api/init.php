@@ -11,7 +11,7 @@ Kohana::$log->add('debug', '('.implode('|', $api_config->models).')');
 Route::set('api', 'v'.$api_config->version.'/<controller>(/<id>)',
     array(
         'controller' => '('.implode('|', $api_config->models).')',
-        'id' => '\d*'
+        //'id' => '\d*'
     ))
     ->defaults(array(
         'action' => 'index'
