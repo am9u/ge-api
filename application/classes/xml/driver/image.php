@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class XML_Driver_Event extends XML_Driver_Model
+class XML_Driver_Image extends XML_Driver_Model
 {
 	public $root_node = 'events';
 
