@@ -73,7 +73,7 @@ class Controller_Image extends Controller_REST
         // $this->request->response = $out; 
     }
 
-    public function after() {}
+    // public function after() {}
 
     private static function _upload_to_s3($file_path)
     {
