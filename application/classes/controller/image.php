@@ -36,13 +36,13 @@ class Controller_Image extends Controller_REST
         if($array->check())
         {
             $file = $_FILES['photo'];
-            $image = ORM::factory('image');
+            //$image = ORM::factory('image');
 
-            $image->name = $file->name;
+            //$image->name = $file->name;
 
             // save local copy
             $path = Upload::save($file, NULL, 'uploads'); // returns absolute path on filesystem
-            $out = 'file saved<br/>';
+            // $out = 'file saved<br/>';
 
             // process image... move this to separate function
             // $image = Image::factory($path);
@@ -50,17 +50,27 @@ class Controller_Image extends Controller_REST
             // $image->save('uploads/'.$_FILES['photo']['name'].'_200x200.jpg');
 
             // todo: upload to aws.s3
+
+            $this->_status = array(
+                'type'    => 'success',
+                'code'    => '200',
+                'message' => 'OK. Image uploaed to '.$path
+            );
         } 
         else 
         {
             // @TODO: throw error status code in HTTP response
-            $this->request->status = 400;
-            $out = 'file not saved<br/>';
+
+            $this->_status = array(
+                'type'    => 'error',
+                'code'    => '400',
+                'message' => 'Error creating image'
+            );
             
         }
 
 
-        $this->request->response = $out; 
+        // $this->request->response = $out; 
     }
 
     public function after() {}
