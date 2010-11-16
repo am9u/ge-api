@@ -30,7 +30,7 @@ class Controller_Image extends Controller_REST
             'message' => 'OK'
         );
 
-        $this->request->response = 'photo name='.$image->name.' url='.$image->url;
+        Kohana::$log->add('Controller_Image->action_index()', 'photo name='.$image->name.' url='.$image->url);
     }
 
     /**
