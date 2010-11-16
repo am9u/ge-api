@@ -53,6 +53,10 @@ class Controller_Image extends Controller_REST
 
             // save local copy
             $path = Upload::save($file, NULL, 'uploads'); // returns absolute path on filesystem
+            $newpath = $_SERVER['DOCUMENT_ROOT'].'/images/'.$file['name'];
+
+            $moved = rename($path, $newpath); // $moved = true/false if rename is successful
+
             // $out = 'file saved<br/>';
 
             // process image... move this to separate function
@@ -66,7 +70,7 @@ class Controller_Image extends Controller_REST
             $image = new Model_Image();
 
             $image->name = $file['name'];
-            $image->url  = $path;
+            $image->url  = $newpath;
 
             $image->save();
 
