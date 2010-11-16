@@ -24,7 +24,7 @@ class Controller_Image extends Controller_REST
 
         $image = new Model_Image($id);
 
-        $image->load();
+        $image->load('{_id:"'.$id.'"}');
 
         $this->_status = array(
             'type'    => 'success',
