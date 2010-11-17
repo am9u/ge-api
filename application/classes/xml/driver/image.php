@@ -27,7 +27,18 @@ class XML_Driver_Image extends XML_Driver_Model
         // return $this->_add_model('event', $model);
         $image = $this->add_node('image', NULL, array('id' => $model->id));
         $image->add_node('name', $model->name);
-        $image->add_node('url', $model->url);
+        //$image->add_node('url', $model->url);
+
+        $profiles = $image->add_node('profiles');
+
+        foreach($model->profiles as $profile_name => $profile)
+        {
+            $profiles->add_node('profile', $profile['url'], array(
+                'type' => $profile_name, 
+                'width' => $profile['width'], 
+                'height' => $profile['height']
+            ));
+        }
 
         // $event->add_node('datetime', $model->datetime);
         // $event->add_node('name', $model->name);

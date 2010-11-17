@@ -44,7 +44,7 @@ class Controller_Image extends Controller_REST
     public function action_create()
     {
 
-
+        // validation
         $array = Validate::factory($_FILES);
         $array->rule('photo', 'Upload::not_empty');
         $array->rule('photo', 'Upload::type', array(array('jpg', 'jpeg', 'png', 'gif')));
@@ -52,6 +52,7 @@ class Controller_Image extends Controller_REST
         // consistent with php.ini setting. will have to change there if support for large files is needed
         $array->rule('photo', 'Upload::size', array('2M')); 
 
+        // valid file in POST fields, so try to save to filesystem
         if($array->check())
         {
             $file = $_FILES['photo'];
@@ -63,7 +64,7 @@ class Controller_Image extends Controller_REST
             $relpath = '/images/'.$hashed_name;
 
             // process image... move this to separate function
-            // $image = Image::factory($path);
+            $image_processor = Image::factory($path);
             // $image->crop(200, 200, 0, 0);
             // $image->save('uploads/'.$_FILES['photo']['name'].'_200x200.jpg');
 
@@ -73,7 +74,13 @@ class Controller_Image extends Controller_REST
             $image = new Model_Image();
 
             $image->name = $file['name'];
-            $image->url  = $relpath;
+            $image->profiles = array(
+                'original' => array(
+                    'width'  => $image_processor->width, 
+                    'height' => $image_processor->height,
+                    'url'    => $relpath
+                ) 
+            );
 
             $image->save();
 
