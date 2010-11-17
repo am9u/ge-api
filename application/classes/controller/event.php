@@ -58,7 +58,7 @@ class Controller_Event extends Controller_REST
             'message' => 'OK'
         );
 
-        $this->_payload = $event;
+        // $this->_payload = $event;
     }
 
 }
