@@ -115,7 +115,7 @@ class Controller_Image extends Controller_REST
         }
     }
 
-    private status function file_extension($filename)
+    private static function file_extension($filename)
     {
         var idx = strripos($filename, '.');
         if(idx === FALSE)
