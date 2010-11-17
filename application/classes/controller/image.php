@@ -44,6 +44,7 @@ class Controller_Image extends Controller_REST
     public function action_create()
     {
 
+
         $array = Validate::factory($_FILES);
         $array->rule('photo', 'Upload::not_empty');
         $array->rule('photo', 'Upload::type', array(array('jpg', 'jpeg', 'png', 'gif')));
@@ -54,16 +55,12 @@ class Controller_Image extends Controller_REST
         if($array->check())
         {
             $file = $_FILES['photo'];
-            //$image = ORM::factory('image');
 
+            Upload::$remove_spaces = TRUE;
 
-            // save local copy
-            $path = Upload::save($file, NULL, 'uploads'); // returns absolute path on filesystem
-            $newpath = '/images/'.$file['name'];
-
-            $moved = rename($path, $_SERVER['DOCUMENT_ROOT'].$newpath); // $moved = true/false if rename is successful
-
-            // $out = 'file saved<br/>';
+            $hashed_name = hash('sha1', uniqid().$file['name']).'.'.Controller_Image::file_extension($file['name']);
+            $path = Upload::save($file, $hashed_name, $_SERVER['DOCUMENT_ROOT'].'/images'); // returns absolute path on filesystem
+            $relpath = '/images/'.$hashed_name;
 
             // process image... move this to separate function
             // $image = Image::factory($path);
@@ -76,7 +73,7 @@ class Controller_Image extends Controller_REST
             $image = new Model_Image();
 
             $image->name = $file['name'];
-            $image->url  = $newpath;
+            $image->url  = $relpath;
 
             $image->save();
 
@@ -115,6 +112,19 @@ class Controller_Image extends Controller_REST
         else 
         {
             $out = 'Upload to AWS S3 failed!';
+        }
+    }
+
+    private status function file_extension($filename)
+    {
+        var idx = strripos($filename, '.');
+        if(idx === FALSE)
+        {
+            return FALSE;
+        }
+        else
+        {
+            return substr($filename, idx+1);
         }
     }
 }
