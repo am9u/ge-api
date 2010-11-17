@@ -87,8 +87,6 @@ class Controller_Image extends Controller_REST
         } 
         else 
         {
-            // @TODO: throw error status code in HTTP response
-
             $errors = $array->errors('image');
 
             $this->_status = array(
@@ -98,9 +96,6 @@ class Controller_Image extends Controller_REST
             );
             
         }
-
-
-        // $this->request->response = $out; 
     }
 
     // public function after() {}
