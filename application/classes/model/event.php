@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Model_Event extends MongoDocument
+class Model_Event extends Mongo_Document
 {
    protected $name = 'events';
    protected $db = 'event_store'; 
