@@ -81,14 +81,10 @@ class Controller_Image extends Controller_REST
                     'height' => $image_processor->height,
                     'url'    => $relpath
                 ) 
-            )
+            );
 
             // @TODO: validate tags!
-            $image->tags = array();
-            if (isset($_POST['tags'])) 
-            {
-                $image->tags = $_POST['tags'];
-            }
+            $image->tags = (isset($_POST['tags'])) ? $_POST['tags'] : array();
 
             $image->save();
 
