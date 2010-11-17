@@ -1,5 +1,8 @@
 <?php defined('SYSPATH') or die('No direct script access.'); 
 
+// @TODO: add cropping/resizing controllers
+// @TODO: add GET method for finding collection of images by tag
+// @TODO: move file extension helper into File Helper
 class Controller_Image extends Controller_REST 
 {
     protected $_model_type = 'image';

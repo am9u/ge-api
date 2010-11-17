@@ -40,34 +40,14 @@ class XML_Driver_Image extends XML_Driver_Model
             ));
         }
 
+        $tags = $image->add_node('tags');
         if(isset($model->tags))
         {
-            $tags = $image->add_node('tags');
             foreach($model->tags as $tag)
             {
                 $tags->add_node('tag', $tag);
             }
         }
-
-        // $event->add_node('datetime', $model->datetime);
-        // $event->add_node('name', $model->name);
-        // $event->add_node('description', $model->description);
-
-        // $venue = $model->venue;
-
-        // $venue_node = XML::factory('venue')->add_model($venue);
-
-        // $event->import($venue_node);
-
-        // $event_tags = $event->add_node('tags');
-
-        // if($model->tags->count_all() > 0)
-        // {
-        //     foreach($model->tags->find_all() as $event_tag)
-        //     {
-        //         $event_tags->add_node('tag', $event_tag->name, array('id' => $event_tag->id));
-        //     }
-        // }
 
         return $image;
     }
