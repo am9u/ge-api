@@ -28,6 +28,7 @@ class Controller_Event extends Controller_REST
     {
         // only needed if post is coming from CURL?
         //$this->_data = $this->_parse_form_data($_POST);
+        $this->_data = $_POST;
 
         // xss security
         $this->_data = $this->sanitize_values($this->_data);
