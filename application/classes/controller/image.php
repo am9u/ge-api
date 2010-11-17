@@ -1,4 +1,5 @@
 <?php defined('SYSPATH') or die('No direct script access.'); 
+
 class Controller_Image extends Controller_REST 
 {
     protected $_model_type = 'image';
@@ -87,7 +88,7 @@ class Controller_Image extends Controller_REST
         else 
         {
             // @TODO: throw error status code in HTTP response
-            print_r($array->errors());
+            print_r($array->errors('image'));
 
             $this->_status = array(
                 'type'    => 'error',
