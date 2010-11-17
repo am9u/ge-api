@@ -34,7 +34,7 @@ class XML_Driver_Image extends XML_Driver_Model
         foreach($model->profiles as $profile_name => $profile)
         {
             $profiles->add_node('profile', $profile['url'], array(
-                'type' => $profile_name, 
+                'type' => $profile['type'], 
                 'width' => $profile['width'], 
                 'height' => $profile['height']
             ));
