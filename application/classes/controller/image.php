@@ -88,12 +88,11 @@ class Controller_Image extends Controller_REST
         else 
         {
             // @TODO: throw error status code in HTTP response
-            print_r($array->errors('image'));
 
             $this->_status = array(
                 'type'    => 'error',
                 'code'    => '400',
-                'message' => 'Error creating image'
+                'message' => $array->errors('image')['photo']
             );
             
         }
