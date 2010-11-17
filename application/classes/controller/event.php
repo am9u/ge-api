@@ -26,7 +26,8 @@ class Controller_Event extends Controller_REST
     // MongoDB insert
     public function action_create()
     {
-        $this->_data = $this->_parse_form_data($_POST);
+        // only needed if post is coming from CURL?
+        //$this->_data = $this->_parse_form_data($_POST);
 
         // xss security
         $this->_data = $this->sanitize_values($this->_data);
