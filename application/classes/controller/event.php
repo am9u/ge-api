@@ -47,7 +47,7 @@ class Controller_Event extends Controller_REST
         //$event->venue = $venue;
 
         $event->tags = array(
-            uniqid.'_'.$event->name.'_'.$event->date
+            uniqid().'_'.$event->name.'_'.$event->date
          );
 
         $event->save();
