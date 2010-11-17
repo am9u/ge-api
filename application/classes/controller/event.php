@@ -52,7 +52,12 @@ class Controller_Event extends Controller_REST
 
         $event->save();
 
-
+        $this->_status = array(
+            'type'    => 'success',
+            'code'    => '200',
+            'message' => 'OK'
+        );
+    }
 
     }
 
