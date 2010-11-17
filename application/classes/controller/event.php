@@ -61,4 +61,16 @@ class Controller_Event extends Controller_REST
         // $this->_payload = $event;
     }
 
+    public function action_index($id=NULL)
+    {
+        $event = new Model_Event($id);
+        $event->load();
+
+        $this->_status = array(
+            'type'    => 'success',
+            'code'    => '200',
+            'message' => 'OK. '.$event->date
+        );
+    }
+
 }
