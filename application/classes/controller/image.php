@@ -82,7 +82,9 @@ class Controller_Image extends Controller_REST
                     'url'    => $relpath
                 ) 
             )
-            $image->tags = (isset($_POST['tags'])) ? tags : array();
+
+            // @TODO: validate tags!
+            $image->tags = (isset($_POST['tags'])) ? $_POST['tags'] : array();
 
             $image->save();
 
