@@ -21,6 +21,37 @@ class Controller_Event extends Controller_REST
             'code'    => '200',
             'message' => 'OK'
         );
+    }
+
+    // MongoDB insert
+    public function action_create()
+    {
+        $this->_data = $this->_parse_form_data($_POST);
+
+        // xss security
+        $this->_data = $this->sanitize_values($this->_data);
+
+        // $venue = new Model_Venue();
+        // $venue->set('name', $this->_data['venue_name']);
+        // $venue->set('address_1', $this->_data['address_1']);
+        // $venue->set('address_2', $this->_data['address_2']);
+        // $venue->save();
+
+        $event = new Model_Event();
+
+        $event->name = $this->_data['name'];
+        $event->description = $this->_data['description'];
+        $event->date = new MongoDate(); // $this->_data['date'];
+        //$event->venue = $venue;
+
+        $event->tags = array(
+            uniqid.'_'.$event->name.'_'.$event->date
+         );
+
+        $event->save();
+
+
 
     }
+
 }
