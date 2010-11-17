@@ -48,6 +48,9 @@ class Controller_Image extends Controller_REST
         $array->rule('photo', 'Upload::not_empty');
         $array->rule('photo', 'Upload::type', array(array('jpg', 'jpeg', 'png', 'gif')));
 
+        // consistent with php.ini setting. will have to change there if support for large files is needed
+        $array->rule('photo', 'Upload::size', array('2M')); 
+
         if($array->check())
         {
             $file = $_FILES['photo'];
@@ -80,7 +83,7 @@ class Controller_Image extends Controller_REST
             $this->_status = array(
                 'type'    => 'success',
                 'code'    => '200',
-                'message' => 'OK. Image id='.$image->id.' uploaed to '.$path
+                'message' => 'OK'
             );
 
             $this->_payload = $image;
