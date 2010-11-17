@@ -66,7 +66,7 @@ class Controller_Event extends Controller_REST
         $event = new Model_Event($id);
         $event->load();
 
-        $date = date('Y-M-d h:i:s', $event->date); 
+        $date = date('Y-M-d h:i:s', $event->date->sec); 
         $this->_status = array(
             'type'    => 'success',
             'code'    => '200',
