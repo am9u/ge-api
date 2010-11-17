@@ -40,6 +40,12 @@ class XML_Driver_Image extends XML_Driver_Model
             ));
         }
 
+        $tags = $image->add_node('tags');
+        foreach($model->tags as $tag)
+        {
+            $tags->add_node('tag', $tag);
+        }
+
         // $event->add_node('datetime', $model->datetime);
         // $event->add_node('name', $model->name);
         // $event->add_node('description', $model->description);
