@@ -76,7 +76,7 @@ class Controller_Image extends Controller_REST
             $image->name = $file['name'];
             $image->profiles = array(
                 array(
-                    'type'   => 'original_source'
+                    'type'   => 'original_source',
                     'width'  => $image_processor->width, 
                     'height' => $image_processor->height,
                     'url'    => $relpath
