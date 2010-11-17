@@ -84,7 +84,11 @@ class Controller_Image extends Controller_REST
             )
 
             // @TODO: validate tags!
-            $image->tags = (isset($_POST['tags'])) ? $_POST['tags'] : array();
+            $image->tags = array();
+            if (isset($_POST['tags'])) 
+            {
+                $image->tags = $_POST['tags'];
+            }
 
             $image->save();
 
