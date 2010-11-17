@@ -118,13 +118,13 @@ class Controller_Image extends Controller_REST
     private static function file_extension($filename)
     {
         $idx = strripos($filename, '.');
-        if(idx === FALSE)
+        if($idx === FALSE)
         {
             return FALSE;
         }
         else
         {
-            return substr($filename, idx+1);
+            return substr($filename, $idx+1);
         }
     }
 }
