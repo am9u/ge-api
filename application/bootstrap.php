@@ -91,6 +91,7 @@ Kohana::modules(array(
 	'xml'           => MODPATH.'xml',       // XML utility library 
 	'rest_api'      => MODPATH.'rest_api',  // REST-ful API 
 	'kohana-aws'    => MODPATH.'kohana-aws', // Kohana wrapper for php-aws library
+	'mongodb-php-odm' => MODPATH.'mongodb-php-odm', // Kohana wrapper for MongoDB 
 	));
 
 /**
