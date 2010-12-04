@@ -3,7 +3,7 @@
 /**
  * Tags are a hierarchal structure
  */
-class Model_Tag extends CacheORM 
+class Model_Tag extends ORM 
 {
     protected $_db = 'event_warehouse';
 
@@ -49,6 +49,9 @@ class Model_Tag extends CacheORM
         return $this->core_tags()->where('name', '=', $name);
     }
 
+    /**
+     * Returns descendent tags of a parent tag
+     */
     private function _descendents($descendents)
     {
         Kohana::$log->add('_descendents', 'id='.$this->id);
