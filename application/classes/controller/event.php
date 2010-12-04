@@ -61,6 +61,8 @@ class Controller_Event extends Controller_REST
         // $this->_payload = $event;
     }
 
+    // MongoDB event
+    /*
     public function action_index($id=NULL)
     {
         $event = new Model_Event($id);
@@ -73,5 +75,6 @@ class Controller_Event extends Controller_REST
             'message' => 'OK. '.$date
         );
     }
+    //*/
 
 }
