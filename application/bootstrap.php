@@ -114,26 +114,26 @@ if ( ! defined('SUPPRESS_REQUEST'))
     $request = Request::instance();
 
     // If page cache is loaded read the request variables from the cache
-    if ($page = Page::load($_SERVER['REQUEST_URI']))
-    {
-        if (Expires::get())
-        {
-            $request->status    = 304;
-            $request->response  = ''; 
-        }
-        else
-        {
-            $request->status    = $page['status'];
-            $request->response  = $page['response'];
-        }
+    //if ($page = Page::load($_SERVER['REQUEST_URI']))
+    //{
+    //    if (Expires::get())
+    //    {
+    //        $request->status    = 304;
+    //        $request->response  = ''; 
+    //    }
+    //    else
+    //    {
+    //        $request->status    = $page['status'];
+    //        $request->response  = $page['response'];
+    //    }
 
-        $request->headers   = $page['headers'];
-    }
-    else
-    {
+    //    $request->headers   = $page['headers'];
+    //}
+    //else
+    //{
         // Attempt to execute the response
         $request->response = (string) $request->execute()->response;
-    }
+    //}
 
     // Send headers and replace memory_usage and execution_time variables   
     if ($request->send_headers()->response)
