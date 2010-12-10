@@ -59,7 +59,7 @@ class Model_Event extends ORM
                     $model = ORM::factory('tag', array('name' => $tag));
                     if( ! $model->loaded())
                     {
-                        $model = ORM::factory('tag')->values(array('name' => $tag))->save();
+                        $model = Model_Tag::factory()->values(array('name' => $tag))->save();
                     }
                     if($this->_tags === NULL)
                     {
@@ -88,7 +88,8 @@ class Model_Event extends ORM
                                     ->find();
 
             // autocreate internal tag for this event. eventually we should tagname to be event.name_event.date, ie: A Fan Ti_2010.11.01... or something like that
-            $event_tag = ORM::factory('tag')
+            $event_tag = Model_Tag::factory()
+            //$event_tag = ORM::factory('tag')
                             ->values(array('name' => $this->name.': '.$this->datetime, 'parent_id' => $event_parent_tag->id))
                             ->save();
 

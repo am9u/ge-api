@@ -94,7 +94,8 @@ class Model_Venue extends ORM
         }
 
         // if event is created (not updated), generate it's unique event tag
-        if($this->tags->where('name', '=', $this->name.': '.$this->id)->count_all() < 1) {
+        if($this->tags->where('name', '=', $this->name.': '.$this->id)->count_all() < 1) 
+        {
             $core_tag_name = ucfirst($this->_object_name);
 
             $event_parent_tag = ORM::factory('tag')
@@ -102,7 +103,7 @@ class Model_Venue extends ORM
                                     ->find();
 
             // autocreate internal tag for this event. eventually we should tagname to be event.name_event.date, ie: A Fan Ti_2010.11.01... or something like that
-            $event_tag = ORM::factory('tag')
+            $event_tag = Model_Tag::factory()
                             ->values(array('name' => $this->name.': '.$this->id, 'parent_id' => $event_parent_tag->id))
                             ->save();
 

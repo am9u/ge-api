@@ -31,6 +31,23 @@ class Model_Tag extends ORM
     //     'name' => array('name_unique'),
     // );
 
+	/**
+	 * Creates and returns a new model.
+	 *
+	 * @chainable
+	 * @param   string  model name
+	 * @return  ORM
+	 */
+	public static function factory($model = 'tag', $id = NULL)
+	{
+		// Set class name
+        $tag = ORM::factory('tag');
+        $ticket_factory = new TicketFactory;
+        $tag->id = $ticket_factory->create_ticket('Ticket_Tag');
+
+        return $tag;
+	}
+
     /**
      * Helper function that returns all core parent tags
      */
