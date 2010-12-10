@@ -2,3 +2,4 @@
 modules/database/config/*.php
 modules/kohana-aws/config/*.php
 modules/rest_api/config/*.php
+application/vendor

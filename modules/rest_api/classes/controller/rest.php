@@ -284,6 +284,10 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 
     protected function _parse_form_data($form_data)
     {
+        Kohana::$log->add('Controller_REST::_parse_form_data()', '$form_data='.$form_data);
+
+        $content = '';
+
         // join head and body of POST data into one string
         foreach($form_data as $head => $body)
         {
