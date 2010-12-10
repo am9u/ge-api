@@ -103,7 +103,7 @@ class Model_Venue extends ORM
                                     ->find();
 
             // autocreate internal tag for this event. eventually we should tagname to be event.name_event.date, ie: A Fan Ti_2010.11.01... or something like that
-            $event_tag = Model_Tag::factory()
+            $event_tag = ORM::factory('tag')
                             ->values(array('name' => $this->name.': '.$this->id, 'parent_id' => $event_parent_tag->id))
                             ->save();
 
