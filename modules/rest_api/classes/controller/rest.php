@@ -147,6 +147,9 @@ abstract class Controller_REST extends Kohana_Controller_REST {
      */ 
     public function action_update($id=NULL)
     {
+
+        //print_r($_POST);
+
         $this->_data = $this->_parse_form_data($_POST);
 
         // xss security
@@ -172,6 +175,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             }
             else
             {
+
                 $this->_status = array(
                     'type'    => 'error',
                     'code'    => '500',
@@ -278,10 +282,60 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         $this->_render();
     }
 
+    protected function _parse_form_data($form_data)
+    {
+        // join head and body of POST data into one string
+        foreach($form_data as $head => $body)
+        {
+            $head = str_replace('_', ' ', $head);
+            $content = $head.'='.$body;
+        }
+
+        // split the form data string by mime boundary
+        $regex = '/-{2}(?:.*)\s*(?:Content-Disposition:\sform-data;)?-*?/';
+        $data  = preg_split($regex, $content);
+
+        // clean off first and last values in array because they're empty
+        array_shift($data);
+        array_pop($data); 
+
+        // convert each value to key=value format
+        $regex = '/name="(([\w\[\]\d]*))"([.\s]*)/';
+        $data  = preg_replace($regex, "$1=", $data);
+
+        // massage key/value pairs into associative array for consumption into model
+        $sanitized_data = array();
+
+        foreach($data as $k => $v)
+        {
+            $kv = preg_split('/=\s?/', $v);
+
+            // single value
+            if(strpos($kv[0], '[') === FALSE)
+            {
+                $sanitized_data[trim($kv[0])] = trim($kv[1]);
+            }
+            // array of values
+            else 
+            {
+                $kn = explode('[', trim($kv[0]));
+                if( ! isset($sanitized_data[$kn[0]]))
+                {
+                    $sanitized_data[$kn[0]] = array();
+                }
+                array_push($sanitized_data[$kn[0]], trim($kv[1]));
+            }
+        }
+
+        return $sanitized_data;
+
+    }
+
     /**
      * A kludgey hack that should probably be re-written. This method should also 
      * probably be a static method on the Controller_REST class or a helper method
      */
+    /*
     protected function _parse_form_data($form_data)
     {
         $newvalues = array();
@@ -298,13 +352,22 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             array_pop($value); 
 
             // wow. this ternary for setting this regex is really bad! but it handles name=\"foo\" and name="foo"
-            $regex = (Request::instance()->action === 'update') ? '/name=(?:\\\?")([\w\[\]\d]*)(?:\\\")|(?:")/' : '/name="([\w\[\]\d]*)"/'; 
-            $values = preg_replace($regex, '$1=', $value);
+            $regex = (Request::instance()->action === 'update') ? '/name=+(?:\\\?")([\w\[\]\d]*)(?:\\\")|(?:")/' : '/name=+"([\w\[\]\d]*)"/'; 
+            if (Request::instance()->action == 'update')
+            {
+                $values = preg_replace($regex, '$1', $value);
+            }
+            else
+            {
+                $values = preg_replace($regex, '$1=', $value);
+            }
+
+            print_r($values);
 
             // massage key/value pairs into associative array for consumption into model
             foreach($values as $k => $v)
             {
-                $kv = preg_split('/=\s/', $v);
+                $kv = preg_split('/=\s?/', $v);
                 if(strpos($kv[0], '[') === FALSE)
                 {
                     $newvalues[trim($kv[0])] = trim($kv[1]);
@@ -325,6 +388,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 
         return $newvalues;
     }
+    //*/
 
     /**
      * Strips values of possible XSS attempts
