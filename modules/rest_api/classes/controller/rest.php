@@ -10,6 +10,7 @@
 abstract class Controller_REST extends Kohana_Controller_REST {
     
     protected $_model_type = NULL; // model type ie: 'event' or 'tag'
+    protected $_model = NULL;
 
     protected $_view = NULL; // view
     protected $_data = NULL;
@@ -21,6 +22,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
     private $cache = NULL;
 
     protected $_valid_get_actions = NULL;
+    protected $_valid_post_actions = NULL;
 
 	/**
 	 * Checks the requested method against the available methods. If the method
@@ -40,6 +42,11 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 		}
         // allow GET requests to call allowed methods
 		else if(Request::$method === 'GET' AND isset($this->_valid_get_actions[$this->_action_requested]))
+        {
+			$this->request->action = $this->_action_requested;
+        }
+        // allow POST requests to call allowed methods
+		else if(Request::$method === 'POST' AND isset($this->_valid_post_actions[$this->_action_requested]))
         {
 			$this->request->action = $this->_action_requested;
         }
@@ -69,22 +76,22 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // 
         if ( ! empty($id)) 
         {
-            $model = ORM::factory($this->_model_type, $id);    
-            if($model->loaded())
+            $this->_model = ORM::factory($this->_model_type, $id);    
+            if($this->_model->loaded())
             {
-                $this->_payload = $model;
+                $this->_payload = $this->_model;
             }
         }
         else 
         {
-            $model  = ORM::factory($this->_model_type);
-            if($model->count_all() > 1)
+            $this->_model  = ORM::factory($this->_model_type);
+            if($this->_model->count_all() > 1)
             {
-                $this->_payload = $model->find_all();
+                $this->_payload = $this->_model->find_all();
             }
-            elseif($model->count_all() === 1)
+            elseif($this->_model->count_all() === 1)
             {
-                $this->_payload = $model->find();
+                $this->_payload = $this->_model->find();
             }
         }
 
@@ -101,26 +108,31 @@ abstract class Controller_REST extends Kohana_Controller_REST {
      */
     public function action_create()
     {
+        Kohana::$log->add('action_create()', 'called!');
+         
         $this->_data = $this->_parse_form_data($_POST);
 
         // xss security
         $this->_data = $this->sanitize_values($this->_data);
 
-        $model = ORM::factory($this->_model_type);
+        $this->_model = ORM::factory($this->_model_type);
 
-        if($model->values($this->_data)->check())
+        if($this->_model->values($this->_data)->check())
         {
-            $model->save();
+            $this->_model->save();
         
-            if($model->saved())
+            if($this->_model->saved())
             {
+                Kohana::$log->add('action_create()', '$this->_model->saved() === TRUE');
+                Kohana::$log->add('action_create()', '$this->_model->pk() ==='.$this->_model->pk());
+
                 $this->_status = array(
                     'type'    => 'success',
                     'code'    => '200',
                     'message' => 'OK'
                 );
 
-                $this->_payload = $model;
+                $this->_payload = $this->_model;
             }
             else
             {
@@ -156,16 +168,16 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         $this->_data = $this->sanitize_values($this->_data);
 
         // load model
-        $model = ORM::factory($this->_model_type, $this->_data['id']);
+        $this->_model = ORM::factory($this->_model_type, $this->_data['id']);
 
         // unset ID because that's the primary key!
         unset($this->_data['id']);
 
-        if($model->values($this->_data)->check())
+        if($this->_model->values($this->_data)->check())
         {
-            $model->save();
+            $this->_model->save();
 
-            if($model->saved())
+            if($this->_model->saved())
             {
                 $this->_status = array(
                     'type'    => 'success',
@@ -175,7 +187,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             }
             else
             {
-
                 $this->_status = array(
                     'type'    => 'error',
                     'code'    => '500',
@@ -183,7 +194,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
                 );
             }
 
-            $this->_payload = $model;
+            $this->_payload = $this->_model;
         }
         else
         {
@@ -202,8 +213,8 @@ abstract class Controller_REST extends Kohana_Controller_REST {
     {
         if( ! empty($id))
         {
-            $model = ORM::factory($this->_model_type, $id);
-            $model->delete();
+            $this->_model = ORM::factory($this->_model_type, $id);
+            $this->_model->delete();
 
             $this->_status = array(
                 'type'    => 'success',
@@ -284,7 +295,8 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 
     protected function _parse_form_data($form_data)
     {
-        Kohana::$log->add('Controller_REST::_parse_form_data()', '$form_data='.$form_data);
+        if(count($form_data) > 1)
+            return $form_data;
 
         $content = '';
 
