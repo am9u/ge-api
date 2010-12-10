@@ -7,6 +7,7 @@ return array(
 		'venue',
 		'event',
         'tag',
+        'user',
         'photo'
 	)
 );
