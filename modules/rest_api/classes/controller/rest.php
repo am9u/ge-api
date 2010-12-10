@@ -295,40 +295,47 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         $regex = '/-{2}(?:.*)\s*(?:Content-Disposition:\sform-data;)?-*?/';
         $data  = preg_split($regex, $content);
 
-        // clean off first and last values in array because they're empty
-        array_shift($data);
-        array_pop($data); 
-
-        // convert each value to key=value format
-        $regex = '/name="(([\w\[\]\d]*))"([.\s]*)/';
-        $data  = preg_replace($regex, "$1=", $data);
-
-        // massage key/value pairs into associative array for consumption into model
-        $sanitized_data = array();
-
-        foreach($data as $k => $v)
+        if(count($data < 1))
         {
-            $kv = preg_split('/=\s?/', $v);
-
-            // single value
-            if(strpos($kv[0], '[') === FALSE)
-            {
-                $sanitized_data[trim($kv[0])] = trim($kv[1]);
-            }
-            // array of values
-            else 
-            {
-                $kn = explode('[', trim($kv[0]));
-                if( ! isset($sanitized_data[$kn[0]]))
-                {
-                    $sanitized_data[$kn[0]] = array();
-                }
-                array_push($sanitized_data[$kn[0]], trim($kv[1]));
-            }
+            return $form_data;
         }
+        else
+        {
 
-        return $sanitized_data;
+            // clean off first and last values in array because they're empty
+            array_shift($data);
+            array_pop($data); 
 
+            // convert each value to key=value format
+            $regex = '/name="(([\w\[\]\d]*))"([.\s]*)/';
+            $data  = preg_replace($regex, "$1=", $data);
+
+            // massage key/value pairs into associative array for consumption into model
+            $sanitized_data = array();
+
+            foreach($data as $k => $v)
+            {
+                $kv = preg_split('/=\s?/', $v);
+
+                // single value
+                if(strpos($kv[0], '[') === FALSE)
+                {
+                    $sanitized_data[trim($kv[0])] = trim($kv[1]);
+                }
+                // array of values
+                else 
+                {
+                    $kn = explode('[', trim($kv[0]));
+                    if( ! isset($sanitized_data[$kn[0]]))
+                    {
+                        $sanitized_data[$kn[0]] = array();
+                    }
+                    array_push($sanitized_data[$kn[0]], trim($kv[1]));
+                }
+            }
+
+            return $sanitized_data;
+        }
     }
 
     /**
