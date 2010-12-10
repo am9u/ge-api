@@ -46,7 +46,9 @@ class ORM extends Kohana_ORM
 				{
 					// Load the insert id as the primary key
 					// $result is array(insert_id, total_rows)
-					$this->_object[$this->_primary_key] = $result[0];
+					//$this->_object[$this->_primary_key] = $result[0];
+					$this->_object[$this->_primary_key] = $pk;
+
 				}
 
 				// Object is now loaded and saved
