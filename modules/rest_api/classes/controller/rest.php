@@ -295,7 +295,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         $regex = '/-{2}(?:.*)\s*(?:Content-Disposition:\sform-data;)?-*?/';
         $data  = preg_split($regex, $content);
 
-        if(count($data < 1))
+        if(count($data) < 1)
         {
             return $form_data;
         }
