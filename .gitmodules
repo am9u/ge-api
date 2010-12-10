@@ -25,3 +25,6 @@
 [submodule "modules/mongodb-php-odm"]
 	path = modules/mongodb-php-odm
 	url = https://github.com/colinmollenhour/mongodb-php-odm.git
+[submodule "modules/auth"]
+	path = modules/auth
+	url = https://github.com/kohana/auth.git
