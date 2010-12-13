@@ -8,6 +8,9 @@ class Controller_User extends Controller_REST
         'identify' => array(),
     );
 
+    /**
+     * Creates a basic user w/ login role
+     */
     public function action_create()
     {
         Kohana::$log->add('action_create()', 'OVERLOADED CALLED from Controller_User!');
@@ -23,6 +26,10 @@ class Controller_User extends Controller_REST
         }
     }
 
+    /**
+     * Identifies user by username/password credentials or by user_auth_token
+     * Returns user_auth_token as part of the response
+     */
     public function action_identify()
     {
         $status = FALSE;
