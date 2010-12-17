@@ -13,6 +13,8 @@ class Model_Event extends ORM
 
     protected $_has_many = array(
 
+        'groups' => array('through' => 'events_groups'),
+
         // experimental tag mapping
         'tags' => array('through' => 'tagmaps'),
     );
@@ -22,6 +24,7 @@ class Model_Event extends ORM
         'name' => array('not_empty' => array()),
         'datetime' => array('not_empty' => array()),
         'venue_id' => array('not_empty' => array()),
+        'group_id' => array('not_empty' => array()),
     );
 
     // placeholder for establishing has_many relationship to tags
@@ -32,14 +35,8 @@ class Model_Event extends ORM
      */
     public function values($values)
     {
-
-        //print_r($values);
-        //Kohana::$log->add('event->create() tags size', count($values['tags'])); 
-        // Kohana::$log->add('event->create() tags is array', is_array($values->tags));
-
         if(isset($values['tags']) AND is_array($values['tags']))
         {
-           Kohana::$log->add('event->create()', '$values has tags array');
            foreach($values['tags'] as $tag)
            {
                 if(is_numeric($tag))

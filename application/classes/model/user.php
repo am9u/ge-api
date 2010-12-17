@@ -6,6 +6,11 @@ class Model_User extends Model_Auth_User
 
     protected $_ignored_columns = array('token');
 
+    protected $_has_many = array(
+        'roles' => array('through' => 'roles_users'),
+        'groups' => array('through' => 'groups_users'),
+    );
+
 	protected $_rules = array(
 		'username' => array(
 			'not_empty'  => NULL,
