@@ -20,7 +20,7 @@ class Controller_User extends Controller_REST
         Kohana::$log->add('action_create()', '$this->_model->pk() == '.$this->_model->pk());
         
         // if user was successfully created, then assign login role
-        if ($this->_status['code'] == '200')
+        if ($this->_status['code'] == '201')
         {
             $this->_model->add('roles', ORM::factory('role')->where('name', '=', 'login')->find());
         }
