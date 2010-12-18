@@ -94,11 +94,11 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             $this->_model  = ORM::factory($this->_model_type);
             if($this->_model->count_all() > 1)
             {
-                $this->_payload = $this->_model->find_all();
+                $this->_payload = $this->_model;
             }
             elseif($this->_model->count_all() === 1)
             {
-                $this->_payload = $this->_model->find();
+                $this->_payload = $this->_model;
             }
         }
 
@@ -246,20 +246,7 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 
             if( ! empty($this->_payload))
             {
-                // single view
-                if(count($this->_payload) === 1)
-                {
-                    Kohana::$log->add('_render()', 'single instance view');
-                    $this->_xml->add_model($this->_payload);
-                }
-                // collection view
-                else {
-                    Kohana::$log->add('_render()', 'multiple instance view');
-                    foreach($this->_payload as $data)
-                    {
-                        $this->_xml->add_model($data);
-                    }
-                }
+                $this->_xml->add_models_as_nodes($this->_payload);
             }
 
             // add payload to response/status element
@@ -442,4 +429,3 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         return $clean;
     }
 }
-
