@@ -33,30 +33,33 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 	{
 		$this->_action_requested = $this->request->action;
 
-        Kohana::$log->add('Controller_REST->before() action requested', $this->_action_requested);
+        Kohana::$log->add('debug', 'Controller_REST::before() action requested='.$this->_action_requested);
 
         // only allow request to use REST verbs
 		if ( ! isset($this->_action_map[Request::$method]))
 		{
 			$this->request->action = 'invalid';
 		}
+
         // allow GET requests to call allowed methods
 		else if(Request::$method === 'GET' AND isset($this->_valid_get_actions[$this->_action_requested]))
         {
 			$this->request->action = $this->_action_requested;
         }
+
         // allow POST requests to call allowed methods
 		else if(Request::$method === 'POST' AND isset($this->_valid_post_actions[$this->_action_requested]))
         {
 			$this->request->action = $this->_action_requested;
         }
+
         // default to action map
         else
 		{
 			$this->request->action = $this->_action_map[Request::$method];
 		}
 
-        Kohana::$log->add($this->request->controller.'->'.$this->request->action, 'action found to invoke');
+        Kohana::$log->add('debug', 'Controller_REST::before() -- '.get_class($this).'->action_'.$this->request->action.' will be invoked');
 
 		return $this;
 	}
@@ -73,12 +76,16 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // cache output for 60 seconds
         // $this->cache = 60;
 
-        // 
         if ( ! empty($id)) 
         {
-            $this->_model = ORM::factory($this->_model_type, $id);    
+            $this->_model = ORM::factory($this->_model_type, $id);
+
+            Kohana::$log->add('debug', get_class($this).'::action_index -- find model by $id='.$id);
+
             if($this->_model->loaded())
             {
+                Kohana::$log->add('debug', get_class($this).'::action_index -- model[$id='.$this->_model->pk().'] loaded. '.$this->_model->count_all().' found');
+
                 $this->_payload = $this->_model;
             }
         }
@@ -87,18 +94,17 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             $this->_model  = ORM::factory($this->_model_type);
             if($this->_model->count_all() > 1)
             {
-                $this->_payload = $this->_model->find_all();
+                $this->_payload = $this->_model;
             }
             elseif($this->_model->count_all() === 1)
             {
-                $this->_payload = $this->_model->find();
+                $this->_payload = $this->_model;
             }
         }
 
         $this->_status = array(
             'type'    => 'success',
             'code'    => '200',
-            'message' => 'OK'
         );
     }
 
@@ -123,13 +129,12 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         
             if($this->_model->saved())
             {
-                Kohana::$log->add('action_create()', '$this->_model->saved() === TRUE');
-                Kohana::$log->add('action_create()', '$this->_model->pk() ==='.$this->_model->pk());
+                Kohana::$log->add('debug', '$this->_model->saved() === TRUE');
+                Kohana::$log->add('debug', '$this->_model->pk() ==='.$this->_model->pk());
 
                 $this->_status = array(
                     'type'    => 'success',
-                    'code'    => '200',
-                    'message' => 'OK'
+                    'code'    => '201',
                 );
 
                 $this->_payload = $this->_model;
@@ -139,7 +144,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
                 $this->_status = array(
                     'type'    => 'error',
                     'code'    => '500',
-                    'message' => 'Server Error'
                 );
             }
         }
@@ -148,7 +152,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             $this->_status = array(
                 'type'    => 'error',
                 'code'    => '400',
-                'message' => 'Bad Request'
             );
         }
     }
@@ -182,7 +185,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
                 $this->_status = array(
                     'type'    => 'success',
                     'code'    => '200',
-                    'message' => 'OK'
                 );
             }
             else
@@ -190,7 +192,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
                 $this->_status = array(
                     'type'    => 'error',
                     'code'    => '500',
-                    'message' => 'Server Error'
                 );
             }
 
@@ -201,7 +202,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             $this->_status = array(
                 'type'    => 'error',
                 'code'    => '400',
-                'message' => 'Bad Request'
             );
         }
     }
@@ -219,7 +219,6 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             $this->_status = array(
                 'type'    => 'success',
                 'code'    => '200',
-                'message' => 'OK'
             );
         }
     }
@@ -231,31 +230,25 @@ abstract class Controller_REST extends Kohana_Controller_REST {
      */
     protected function _render()
     {
+        // set default message based on HTTP status codes
+        if( ! isset($this->_status['message']))
+        {
+            $this->_status['message'] = Request::$messages[$this->_status['code']];
+        }
+
         // render xml view
         if( ! empty($this->_xml))
         {
+
             // build response/status element
             $response = XML::factory('response');
             $response->add_status($this->_status);
 
             if( ! empty($this->_payload))
             {
-                // single view
-                if(count($this->_payload) === 1)
-                {
-                    Kohana::$log->add('_render()', 'single instance view');
-                    $this->_xml->add_model($this->_payload);
-                }
-                // collection view
-                else {
-                    Kohana::$log->add('_render()', 'multiple instance view');
-                    foreach($this->_payload as $data)
-                    {
-                        $this->_xml->add_model($data);
-                    }
-                }
+                $this->_xml->add_models_as_nodes($this->_payload);
+            }
 
-           }
             // add payload to response/status element
             $response->import($this->_xml);
 
