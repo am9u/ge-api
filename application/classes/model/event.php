@@ -24,7 +24,6 @@ class Model_Event extends ORM
         'name' => array('not_empty' => array()),
         'datetime' => array('not_empty' => array()),
         'venue_id' => array('not_empty' => array()),
-        'group_id' => array('not_empty' => array()),
     );
 
     // placeholder for establishing has_many relationship to tags
