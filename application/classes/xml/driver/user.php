@@ -20,7 +20,7 @@ class XML_Driver_User extends XML_Driver_Model
 						);
 	}
 
-    public function add_model($model)
+    public function add_model($model, $node_only = FALSE)
     {
         $attributes = array();
         $attributes['id'] = $model->id;
@@ -49,7 +49,7 @@ class XML_Driver_User extends XML_Driver_Model
         $user->import($groups_node);
         //*/
 
-        return $this;
+        return ($node_only) ? $event : $this;
 
     }
 }

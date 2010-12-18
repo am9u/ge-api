@@ -21,11 +21,13 @@ class XML_Driver_Role extends XML_Driver_Model
 						);
 	}
 
-    public function add_model($model)
+    public function add_model($model, $node_only = FALSE)
     {
         $role = $this->add_node('role', NULL, array('id' => $model->id));
         $role->add_node('name', $model->name);
         $role->add_node('description', $model->description);
+
+        return ($node_only) ? $role : $this;
     }
 }
 
