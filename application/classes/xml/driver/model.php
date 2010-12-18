@@ -30,28 +30,28 @@ abstract class XML_Driver_Model extends XML
         return $this;
     }
 
-	public function add_person($type, $name, $email = NULL, $uri = NULL)
-	{
-		$author = $this->add_node($type);
-		$author->add_node("name", $name);
-		if ($email)
-		{
-			$author->add_node("email", $email);
-		}
-		if ($uri)
-		{
-			$author->add_node("uri", $uri);
-		}
-		return $this;
-	}
-	
-	
-	public function add_content(XML $xml_document)
-	{
-		$this->add_node("content", NULL, array("type" => $xml_document->meta()->content_type()))->import($xml_document);
-		return $this;
-	}
+    public function add_model($model) {}
 
+    public function add_models_as_nodes($data)
+    {
+        // single view
+        if($data->pk() !== NULL)
+        {
+            Kohana::$log->add('debug', get_class($this).'::add_models_as_nodes() -- single instance view for '.get_class($data));
+            $this->add_model($data);
+        }
+        // collection view
+        else
+        {
+            Kohana::$log->add('debug', get_class($this).'::add_models_as_nodes() -- multiple instance view for '.get_class($data));
+            foreach($data->find_all() as $model)
+            {
+                $this->add_model($model);
+            }
+        }
+
+        return $this;
+    }
 
 	public function normalize_datetime($value)
 	{
@@ -75,31 +75,4 @@ abstract class XML_Driver_Model extends XML
 		return date("Y-m-d", $value);
 	}
 
-
-	// public function render($formatted = FALSE)
-	// {
-	// 	if ( ! $this->published)
-	// 	{
-	// 		// Add the published node with current date
-	// 		$this->add_node("published", time());
-	// 	}
-	// 	// Add the link to self
-	// 	$this->add_node("link", NULL, array("rel" => "self", "href" => $_SERVER['REQUEST_URI']));
-	// 	
-	// 	return parent::render($formatted);
-	// }
-
-
-	// public function export($file)
-	// {
-	// 	if ( ! $this->published)
-	// 	{
-	// 		// Add the published node with current date
-	// 		$this->add_node("published", time());
-	// 	}
-	// 	// Add the link to self
-	// 	$this->add_node("link", NULL, array("rel" => "self", "href" => $_SERVER['REQUEST_URI']));
-	// 	
-	// 	parent::export($file);
-	// }
 }

@@ -13,18 +13,18 @@ class XML_Driver_User extends XML_Driver_Model
 		$meta	->content_type("application/xml")
 				->nodes (
 							array(
-								"models"		    => array("filter"		=> ""),
-								"model"				=> array("filter"		=> ""),
-								"username"   		=> array("filter"		=> ""),
+								"users"		    => array("filter"		=> ""),
+								"user"			=> array("filter"		=> "", "attributes" => array("id" => NULL)),
+								"username"   	=> array("filter"		=> ""),
 								)
 						);
 	}
 
-    public function add_model($model)
+    public function add_model($model, $node_only = FALSE)
     {
-
         $attributes = array();
         $attributes['id'] = $model->id;
+
         if ( ! empty($model->token))
         {
             $attributes['token'] = $model->token;
@@ -33,14 +33,23 @@ class XML_Driver_User extends XML_Driver_Model
         $user = $this->add_node('user', NULL, $attributes);
         $user->add_node('username', $model->username);
 
-        $roles = $user->add_node('roles', NULL);
-
+        $roles_node = XML::factory('role');
         foreach($model->roles->find_all() as $role)
         {
-            $roles->add_node('role', $role->name);
+            $roles_node->add_model($role);
         }
+        $user->import($roles_node);
 
+        /*
+        $groups_node = XML::factory('group');
+        foreach($model->groups->find_all() as $group)
+        {
+            $groups_node->add_model($group);
+        }
+        $user->import($groups_node);
+        //*/
 
-        //return $this->_add_model('user', $model);
+        return ($node_only) ? $event : $this;
+
     }
 }

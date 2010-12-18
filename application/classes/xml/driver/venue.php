@@ -16,31 +16,21 @@ class XML_Driver_Venue extends XML_Driver_Model
 		$meta	->content_type("application/xml")
 				->nodes (
 							array(
-								"models"		    => array("filter"		=> ""),
-								"model"				=> array("filter"		=> ""),
+								"venues"		    => array("filter"		=> ""),
+								"venue"				=> array("filter"		=> "", 'attributes' => array('id' => NULL)),
 								"name"				=> array("filter"		=> ""),
-								"description"   	=> array("filter"		=> ""),
 								)
 						);
 	}
 
-    public function add_model($model)
+    public function add_model($model, $node_only = FALSE)
     {
-        // return $this->_add_model('venue', $model);
-
         $venue = $this->add_node('venue', NULL, array('id' => $model->id));
         $venue->add_node('name', $model->name);
 
-        $adr = $model->addresses->find();
+        $address = XML::factory('address')->add_model($model->addresses->find(), TRUE);
+        $venue->import($address);
 
-        $address = $venue->add_node('address');
-        $address->add_node('line_1', $adr->line_1);
-        $address->add_node('line_2', $adr->line_2);
-        $address->add_node('city', $adr->city);
-        $address->add_node('state_province', $adr->state_province);
-        $address->add_node('zip', $adr->zip);
-
-        return $venue;
-
+        return ($node_only) ? $venue : $this;
     }
 }

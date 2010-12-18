@@ -15,11 +15,11 @@ class Controller_User extends Controller_REST
      */
     public function action_create()
     {
-        Kohana::$log->add('action_create()', 'OVERLOADED CALLED from Controller_User!');
+        Kohana::$log->add('debug', 'Controller_User::action_create() -- OVERLOADED CALLED from Controller_User!');
 
         parent::action_create();
 
-        Kohana::$log->add('action_create()', '$this->_model->pk() == '.$this->_model->pk());
+        Kohana::$log->add('debug', 'Controller_User::action_create() -- $this->_model->pk() == '.$this->_model->pk());
         
         // if user was successfully created, then assign login role
         if ($this->_status['code'] == '201')

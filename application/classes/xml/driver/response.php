@@ -10,7 +10,7 @@ class XML_Driver_Response extends XML
 				->nodes (
 							array(
 								"response"		    => array("filter"		=> ""),
-								"status"			=> array("filter"		=> ""),
+								"status"			=> array("filter"		=> "", 'attributes' => array('type' => NULL, 'code' => NULL, 'memory_usage' => '{memory_usage}', 'execution_time' => '{execution_time}')),
 								)
 						);
 	}
@@ -20,9 +20,8 @@ class XML_Driver_Response extends XML
         $node = $this->add_node('status', $status['message'], array(
             'type' => $status['type'],
             'code' => $status['code'],
-            'memory_usage'   => '{memory_usage}',
-            'execution_time' => '{execution_time}'
         ));
+
         return $this;
     }
 

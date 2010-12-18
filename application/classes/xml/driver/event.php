@@ -22,23 +22,21 @@ class XML_Driver_Event extends XML_Driver_Model
 						);
 	}
 
-    public function add_model($model)
+    public function add_model($model, $node_only = FALSE)
     {
-        // return $this->_add_model('event', $model);
+        // base event structure
         $event = $this->add_node('event', NULL, array('id' => $model->id));
-
         $event->add_node('datetime', $model->datetime);
         $event->add_node('name', $model->name);
         $event->add_node('description', $model->description);
 
+        // venue
         $venue = $model->venue;
-
-        $venue_node = XML::factory('venue')->add_model($venue);
-
+        $venue_node = XML::factory('venue')->add_model($venue, TRUE);
         $event->import($venue_node);
 
+        // tags
         $event_tags = $event->add_node('tags');
-
         if($model->tags->count_all() > 0)
         {
             foreach($model->tags->find_all() as $event_tag)
@@ -47,6 +45,6 @@ class XML_Driver_Event extends XML_Driver_Model
             }
         }
 
-        return $event;
+        return ($node_only) ? $event : $this;
     }
 }
