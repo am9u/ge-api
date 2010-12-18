@@ -76,31 +76,25 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // cache output for 60 seconds
         // $this->cache = 60;
 
+        // find single instance of resource
         if ( ! empty($id)) 
         {
             $this->_model = ORM::factory($this->_model_type, $id);
 
             Kohana::$log->add('debug', get_class($this).'::action_index -- find model by $id='.$id);
-
-            if($this->_model->loaded())
-            {
-                Kohana::$log->add('debug', get_class($this).'::action_index -- model[$id='.$this->_model->pk().'] loaded. '.$this->_model->count_all().' found');
-
-                $this->_payload = $this->_model;
-            }
+            Kohana::$log->add('debug', get_class($this).'::action_index -- model[$id='.$this->_model->pk().'] loaded. '.$this->_model->count_all().' found');
         }
+
+        // find list of all resources
         else 
         {
             $this->_model  = ORM::factory($this->_model_type);
-            if($this->_model->count_all() > 1)
-            {
-                $this->_payload = $this->_model->find_all();
-            }
-            elseif($this->_model->count_all() === 1)
-            {
-                $this->_payload = $this->_model->find();
-            }
+
+            Kohana::$log->add('debug', get_class($this).'::action_index -- find index of '.get_class($this->_model));
+            Kohana::$log->add('debug', get_class($this).'::action_index -- '.$this->_model->count_all().' '.get_class($this->_model).' found');
         }
+
+        $this->_payload = $this->_model;
 
         $this->_status = array(
             'type'    => 'success',
@@ -246,20 +240,9 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 
             if( ! empty($this->_payload))
             {
-                // single view
-                if(count($this->_payload) === 1)
-                {
-                    Kohana::$log->add('debug', get_class($this).'::_render() -- single instance view');
-                    $this->_xml->add_model($this->_payload);
-                }
-                // collection view
-                else {
-                    Kohana::$log->add('debug', get_class($this).'::_render() -- multiple instance view');
-                    foreach($this->_payload as $data)
-                    {
-                        $this->_xml->add_model($data);
-                    }
-                }
+                Kohana::$log->add('debug', get_class($this).'->_payload is of class '.get_class($this->_payload));
+
+                $this->_xml->add_models_as_nodes($this->_payload);
             }
 
             // add payload to response/status element
