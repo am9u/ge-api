@@ -76,25 +76,25 @@ abstract class Controller_REST extends Kohana_Controller_REST {
         // cache output for 60 seconds
         // $this->cache = 60;
 
+        // find single instance of resource
         if ( ! empty($id)) 
         {
             $this->_model = ORM::factory($this->_model_type, $id);
 
             Kohana::$log->add('debug', get_class($this).'::action_index -- find model by $id='.$id);
             Kohana::$log->add('debug', get_class($this).'::action_index -- model[$id='.$this->_model->pk().'] loaded. '.$this->_model->count_all().' found');
-
-            $this->_payload = $this->_model;
         }
+
+        // find list of all resources
         else 
         {
             $this->_model  = ORM::factory($this->_model_type);
 
             Kohana::$log->add('debug', get_class($this).'::action_index -- find index of '.get_class($this->_model));
-
-            $this->_payload = $this->_model;
-
             Kohana::$log->add('debug', get_class($this).'::action_index -- '.$this->_model->count_all().' '.get_class($this->_model).' found');
         }
+
+        $this->_payload = $this->_model;
 
         $this->_status = array(
             'type'    => 'success',
