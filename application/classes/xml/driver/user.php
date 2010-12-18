@@ -41,5 +41,12 @@ class XML_Driver_User extends XML_Driver_Model
         $user->import($groups_node);
         //*/
 
+        $roles = $user->add_node('roles', NULL);
+
+        foreach($model->roles->find_all() as $role)
+        {
+            $roles->add_node('role', $role->name);
+        }
+
     }
 }
