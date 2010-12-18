@@ -249,12 +249,12 @@ abstract class Controller_REST extends Kohana_Controller_REST {
                 // single view
                 if(count($this->_payload) === 1)
                 {
-                    Kohana::$log->add('_render()', 'single instance view');
+                    Kohana::$log->add('debug', get_class($this).'::_render() -- single instance view');
                     $this->_xml->add_model($this->_payload);
                 }
                 // collection view
                 else {
-                    Kohana::$log->add('_render()', 'multiple instance view');
+                    Kohana::$log->add('debug', get_class($this).'::_render() -- multiple instance view');
                     foreach($this->_payload as $data)
                     {
                         $this->_xml->add_model($data);
