@@ -81,25 +81,19 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             $this->_model = ORM::factory($this->_model_type, $id);
 
             Kohana::$log->add('debug', get_class($this).'::action_index -- find model by $id='.$id);
+            Kohana::$log->add('debug', get_class($this).'::action_index -- model[$id='.$this->_model->pk().'] loaded. '.$this->_model->count_all().' found');
 
-            if($this->_model->loaded())
-            {
-                Kohana::$log->add('debug', get_class($this).'::action_index -- model[$id='.$this->_model->pk().'] loaded. '.$this->_model->count_all().' found');
-
-                $this->_payload = $this->_model;
-            }
+            $this->_payload = $this->_model;
         }
         else 
         {
             $this->_model  = ORM::factory($this->_model_type);
-            if($this->_model->count_all() > 1)
-            {
-                $this->_payload = $this->_model;
-            }
-            elseif($this->_model->count_all() === 1)
-            {
-                $this->_payload = $this->_model;
-            }
+
+            Kohana::$log->add('debug', get_class($this).'::action_index -- find index of '.get_class($this->_model));
+
+            $this->_payload = $this->_model;
+
+            Kohana::$log->add('debug', get_class($this).'::action_index -- '.$this->_model->count_all().' '.get_class($this->_model).' found');
         }
 
         $this->_status = array(
@@ -246,6 +240,8 @@ abstract class Controller_REST extends Kohana_Controller_REST {
 
             if( ! empty($this->_payload))
             {
+                Kohana::$log->add('debug', get_class($this).'->_payload is of class '.get_class($this->_payload));
+
                 $this->_xml->add_models_as_nodes($this->_payload);
             }
 
