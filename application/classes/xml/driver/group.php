@@ -20,10 +20,8 @@ class XML_Driver_Group extends XML_Driver_Model
 						);
 	}
 
-    public function add_model($model)
+    public function add_model($model, $node_only = FALSE)
     {
-        //return $this->_add_model('group', $model);
-
         $group = $this->add_node('group', NULL, array('id' => $model->id));
         $group->add_node('name', $model->name);
         $group->add_node('description', $model->description);
@@ -35,5 +33,14 @@ class XML_Driver_Group extends XML_Driver_Model
         {
             $users->add_node('user', NULL, array('id' => $user->id));
         }
+
+        return ($node_only) ? $group : $this;
+    }
+
+    public function add_simple_group_node($model, $node_only = FALSE)
+    {
+        $group = $this->add_node('group', NULL, array('id' => $model->id));
+        $group->add_node('name', $model->name);
+        return ($node_only) ? $group : $this;
     }
 }

@@ -33,6 +33,7 @@ class XML_Driver_User extends XML_Driver_Model
         $user = $this->add_node('user', NULL, $attributes);
         $user->add_node('username', $model->username);
 
+        // roles
         $roles_node = XML::factory('role');
         foreach($model->roles->find_all() as $role)
         {
@@ -40,14 +41,13 @@ class XML_Driver_User extends XML_Driver_Model
         }
         $user->import($roles_node);
 
-        /*
+        // groups
         $groups_node = XML::factory('group');
         foreach($model->groups->find_all() as $group)
         {
-            $groups_node->add_model($group);
+            $groups_node->add_simple_group_node($group);
         }
         $user->import($groups_node);
-        //*/
 
         return ($node_only) ? $event : $this;
 
