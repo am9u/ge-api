@@ -49,5 +49,7 @@ class XML_Driver_User extends XML_Driver_Model
         $user->import($groups_node);
         //*/
 
+        return $this;
+
     }
 }
