@@ -248,7 +248,9 @@ abstract class Controller_REST extends Kohana_Controller_REST {
             // add payload to response/status element
             $response->import($this->_xml);
 
-            $this->request->headers  = array('Content-Type:' => $response->content_type);
+            Kohana::$log->add('debug', get_class($this).'::_render() -- $response->meta()->content_type()='.$response->meta()->content_type());
+
+            $this->request->headers  = array('Content-Type' => $response->meta()->content_type());
             $this->request->response = $response->render();
 
             if ( ! empty($this->cache))
