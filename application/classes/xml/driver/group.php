@@ -13,9 +13,10 @@ class XML_Driver_Group extends XML_Driver_Model
 		$meta	->content_type("application/xml")
 				->nodes (
 							array(
-								"models"		    => array("filter"		=> ""),
-								"model"				=> array("filter"		=> ""),
-								"name"				=> array("filter"		=> ""),
+								"groups"		    => array(),
+								"group"				=> array('attributes' => array('id' => NULL)),
+								"name"				=> array(),
+								"description"		=> array(),
 								)
 						);
 	}
@@ -25,7 +26,6 @@ class XML_Driver_Group extends XML_Driver_Model
         $group = $this->add_node('group', NULL, array('id' => $model->id));
         $group->add_node('name', $model->name);
         $group->add_node('description', $model->description);
-        $group->add_node('admin_role', $model->admin_role->name);
 
         $users = $group->add_node('users', NULL);
 

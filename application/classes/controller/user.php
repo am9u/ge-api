@@ -117,10 +117,13 @@ class Controller_User extends Controller_REST
             $user  = ORM::factory('user', $this->_data['user_id']);
             $group = ORM::factory('group', $this->_data['group_id']);
 
+            // insert group member role into join table
+            $group_member_role = ORM::factory('role')->where('name', '=', 'group_member')->find(); 
+
             // user and group are valid, so create relationship
             if ($user->loaded() AND $group->loaded())
             {
-                $user->add('groups', $group);
+                $user->add('groups', $group, array('role_id' => $group_member_role->pk()));
 
                 $this->_status = array(
                     'type'    => 'success',
@@ -158,12 +161,15 @@ class Controller_User extends Controller_REST
         if(isset($this->_data['group_id']) AND isset($this->_data['user_id']))
         {
             $this->_model  = ORM::factory('user', $group_id)->find();
-            $group         = ORM::factory('group', $group_id)->find();
+            $groups        = ORM::factory('group', $group_id)->find_all();
 
             // user and group are valid, so remove relationship
             if($this->_model->loaded() AND $group->loaded())
             {
-                $this->_model->remove('groups', $group);
+                foreach($groups as $group)
+                {
+                    $this->_model->remove('groups', $group);
+                }
 
                 $this->_status = array(
                     'type'    => 'success',
