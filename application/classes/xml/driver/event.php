@@ -35,6 +35,36 @@ class XML_Driver_Event extends XML_Driver_Model
         $venue_node = XML::factory('venue')->add_model($venue, TRUE);
         $event->import($venue_node);
 
+        // groups/privacy settings
+        $privacy_tags = $event->add_node('privacy_settings');
+
+        $privacy_settings = $model->privacy_settings();
+
+        foreach($privacy_settings->find_all() as $privacy_setting)
+        {
+            $privacy_tags->add_node('group', NULL, array(
+                    'id'   => $privacy_setting->group_id, 
+
+                    //'role_id' => $privacy_setting->role_id,
+
+                    'role'    => $privacy_setting
+                                ->role
+                                ->name
+                ));
+            Kohana::$log->add('debug', 'Model_Event::privacy_settings() ---------> privacy settings SQL is: '.$privacy_settings->last_query());
+        }
+
+        
+        /*
+        if($model->groups->count_all() > 0)
+        {
+            foreach($groups = $model->groups->find_all() as $group)
+            {
+                $privacy_tags->add_node('group', $group->name, array('id' => $group->id, 'level' => '0'));
+            }
+        }
+        //*/
+
         // tags
         $event_tags = $event->add_node('tags');
         if($model->tags->count_all() > 0)

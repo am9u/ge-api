@@ -37,7 +37,7 @@ class XML_Driver_User extends XML_Driver_Model
         $roles_node = XML::factory('role');
         foreach($model->roles->find_all() as $role)
         {
-            $roles_node->add_model($role);
+            $roles_node->add_simple_role_node($role);
         }
         $user->import($roles_node);
 
@@ -45,7 +45,24 @@ class XML_Driver_User extends XML_Driver_Model
         $groups_node = XML::factory('group');
         foreach($model->groups->find_all() as $group)
         {
-            $groups_node->add_simple_group_node($group);
+            $group_node = $groups_node->add_simple_group_node($group, TRUE);
+
+            //$group_admin_role_id = ORM::factor('role', array('name' => 'group_admin')->find()->id;
+
+            $group_roles = ORM::factory('grouprole', array(
+                    'user_id' => $model->id, 
+                    'group_id' => $group->id,
+                ))
+                ->group_by('role_id')
+                //->having('role_id', '=', $group_admin_role_id));
+                ->find_all();
+
+            $group_roles_node = $group_node->add_node('roles');
+            foreach($group_roles as $group_role)
+            {
+                $group_roles_node->add_node('role', NULL, array('id' => $group_role->role_id, 'name' => ORM::factory('role', $group_role->role_id)->name));
+            }
+
         }
         $user->import($groups_node);
 

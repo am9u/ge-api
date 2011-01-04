@@ -38,7 +38,10 @@ abstract class XML_Driver_Model extends XML
         if($data->pk() !== NULL)
         {
             Kohana::$log->add('debug', get_class($this).'::add_models_as_nodes() -- single instance view for '.get_class($data));
-            $this->add_model($data);
+            if($data->pk() === $data->id)
+            {
+                $this->add_model($data);
+            }
         }
         // collection view
         else

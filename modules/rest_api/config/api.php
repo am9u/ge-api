@@ -3,11 +3,12 @@
 return array(
     'version' => '1.0',
 	'models' => array(
+        'group',
 		'address',
 		'venue',
 		'event',
         'tag',
         'user',
-        'photo'
+        'image',
 	)
 );

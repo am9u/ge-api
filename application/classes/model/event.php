@@ -69,6 +69,62 @@ class Model_Event extends ORM
     }
 
     /**
+     * Adds group association
+     */
+
+    public function add_to_group($group_id, $role_id = NULL)
+    {
+        $group = ORM::factory('group', $group_id);
+        $this->add('groups', $group);
+
+        if ($role_id !== NULL)
+        {
+            $this->add_group_role($group->id, $role_id);
+        }
+    }
+
+    public function add_group_role($group_id, $role_id)
+    {
+        $event_group_role = ORM::factory('eventGroupRole')
+                                ->values(array(
+                                        'event_id' => $this->id, 
+                                        'group_id' => $group_id, 
+                                        'role_id'  => $role_id, 
+                                    ))
+                                ->save(); 
+    }
+
+    public function make_public()
+    {
+        $login_role = ORM::factory('role', array('name' => 'login'));
+        $this->add_group_role(0, $login_role);
+    }
+
+    public function privacy_settings()
+    {
+        $privacy_settings = ORM::factory('eventGroupRole');
+
+        $groups = $this->groups->find_all();
+
+        $privacy_settings->or_where_open();
+        $privacy_settings->or_where('group_id', '=', 0); // find public events
+
+        foreach($groups as $group)
+        {
+            $privacy_settings->or_where('group_id', '=', $group->id);
+        }
+        $privacy_settings->or_where_close();
+
+        $privacy_settings->and_where_open();
+        $privacy_settings->and_where('event_id', '=', $this->id);
+        $privacy_settings->and_where_close();
+
+
+        
+        return $privacy_settings;
+    }
+
+    /**
      * Creates and associates a unique event tag for this event
      */
     public function save()

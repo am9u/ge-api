@@ -8,6 +8,7 @@ class Controller_User extends Controller_REST
         'identify' => array(),
         'add_to_group' => array(),
         'remove_from_group' => array(),
+        'add_admin_to_group' => array(),
     );
 
     /**
@@ -177,6 +178,54 @@ class Controller_User extends Controller_REST
                 );
 
                 $this->_payload = $this->_model;
+            }
+            // user or group not found
+            else
+            {
+                $this->_status = array(
+                    'type'    => 'error',
+                    'code'    => '400',
+                );
+            }
+        }
+        // required id's are not found in $_POST
+        else
+        {
+            $this->_status = array(
+                'type'    => 'error',
+                'code'    => '400',
+            );
+        }
+    }
+
+    /**
+     * Adds user to a group
+     */
+    public function action_add_admin_to_group()
+    {
+        $this->_data = $this->_parse_form_data($_POST);
+        
+        if (isset($this->_data['group_id']) AND isset($this->_data['user_id']))
+        {
+            Kohana::$log->add('debug', 'Controller_User::action_add_admin_to_group -- user_id='.$this->_data['user_id'].' group_id='.$this->_data['group_id']);
+
+            $user  = ORM::factory('user', $this->_data['user_id']);
+            $group = ORM::factory('group', $this->_data['group_id']);
+
+            // insert group admin role into join table
+            $group_role = ORM::factory('role')->where('name', '=', 'group_admin')->find(); 
+
+            // user and group are valid, so create relationship
+            if ($user->loaded() AND $group->loaded())
+            {
+                $user->add('groups', $group, array('role_id' => $group_role->pk()));
+
+                $this->_status = array(
+                    'type'    => 'success',
+                    'code'    => '200',
+                );
+
+                $this->_payload = $user;
             }
             // user or group not found
             else

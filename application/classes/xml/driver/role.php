@@ -29,5 +29,12 @@ class XML_Driver_Role extends XML_Driver_Model
 
         return ($node_only) ? $role : $this;
     }
+
+
+    public function add_simple_role_node($model, $node_only = FALSE)
+    {
+        $role = $this->add_node('role', NULL, array('id' => $model->id, 'name' => $model->name));
+        return ($node_only) ? $role : $this;
+    }
 }
 

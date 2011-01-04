@@ -29,7 +29,7 @@ class XML_Driver_Group extends XML_Driver_Model
 
         $users = $group->add_node('users', NULL);
 
-        foreach($model->users->find_all() as $user)
+        foreach($model->users->group_by('id')->find_all() as $user)
         {
             $users->add_node('user', NULL, array('id' => $user->id));
         }
