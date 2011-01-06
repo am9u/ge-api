@@ -6,8 +6,6 @@
  */
 class Model_Event extends ORM 
 {
-    protected $_db = 'event_warehouse';
-
     // relationships
     protected $_belongs_to = array('venue' => array());
 
