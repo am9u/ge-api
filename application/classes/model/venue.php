@@ -6,7 +6,9 @@ class Model_Venue extends ORM
 
     // relationships
     protected $_has_many = array(
+        /*
         'tags' => array('through' => 'tagmaps'),
+        //*/
         'addresses' => array('through' => 'venue_addresses', 'foreign_key' => 'venue_id', 'far_key' => 'address_id'),
         'events' => array()
     );
@@ -93,6 +95,7 @@ class Model_Venue extends ORM
             $this->add('addresses', $this->_address);
         }
 
+        /*
         // if event is created (not updated), generate it's unique event tag
         if($this->tags->where('name', '=', $this->name.': '.$this->id)->count_all() < 1) 
         {
@@ -114,6 +117,8 @@ class Model_Venue extends ORM
         // {
         //     $this->add('tags', $this->_tag);
         // }
+        
+        //*/
 
         return $this;
     }

@@ -15,8 +15,10 @@ class Model_Event extends ORM
 
         'groups' => array('through' => 'events_groups'),
 
+        /*
         // experimental tag mapping
         'tags' => array('through' => 'tagmaps'),
+        //*/
     );
 
     // validation
@@ -26,14 +28,17 @@ class Model_Event extends ORM
         'venue_id' => array('not_empty' => array()),
     );
 
+    /*
     // placeholder for establishing has_many relationship to tags
     private $_tags = null;
+    //*/
 
     /**
      * Creates tag relationships and sets values
      */
     public function values($values)
     {
+        /*
         if(isset($values['tags']) AND is_array($values['tags']))
         {
            foreach($values['tags'] as $tag)
@@ -65,6 +70,7 @@ class Model_Event extends ORM
                 }
            }
         }
+        //*/
         return parent::values($values);
     }
 
@@ -131,6 +137,7 @@ class Model_Event extends ORM
     {
         parent::save();
 
+        /*
         // if event is created (not updated), generate it's unique event tag
         if($this->tags->where('name', '=', $this->name.': '.$this->id)->count_all() < 1) {
             $core_tag_name = ucfirst($this->_object_name);
@@ -158,6 +165,7 @@ class Model_Event extends ORM
             }
             $this->_tags = null;
         }
+        //*/
     }
 }
 
