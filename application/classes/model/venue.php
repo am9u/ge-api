@@ -2,8 +2,6 @@
 
 class Model_Venue extends ORM 
 {
-    protected $_db = 'event_warehouse';
-
     // relationships
     protected $_has_many = array(
         /*

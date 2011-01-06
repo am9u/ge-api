@@ -5,7 +5,6 @@
  */
 class Model_Tag extends ORM 
 {
-    protected $_db = 'event_warehouse';
     protected $_ticket_table = 'Ticket_Tag';
 
     // relationships 

@@ -4,8 +4,6 @@
  */
 class Model_Group extends ORM 
 {
-    protected $_db = 'event_warehouse';
-
     // relationships 
     protected $_belongs_to = array(
         'parent' => array('model' => 'group', 'foreign_key' => 'parent_id'),

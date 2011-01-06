@@ -2,8 +2,6 @@
 
 class Model_User extends Model_Auth_User 
 {
-    protected $_db = 'event_warehouse';
-
     protected $_ignored_columns = array('token');
 
     protected $_has_many = array(
