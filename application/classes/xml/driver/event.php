@@ -65,6 +65,8 @@ class XML_Driver_Event extends XML_Driver_Model
         }
         //*/
 
+
+        /*
         // tags
         $event_tags = $event->add_node('tags');
         if($model->tags->count_all() > 0)
@@ -74,6 +76,7 @@ class XML_Driver_Event extends XML_Driver_Model
                 $event_tags->add_node('tag', $event_tag->name, array('id' => $event_tag->id));
             }
         }
+        //*/
 
         return ($node_only) ? $event : $this;
     }
