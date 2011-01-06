@@ -29,6 +29,7 @@ class XML_Driver_Event extends XML_Driver_Model
         $event->add_node('datetime', $model->datetime);
         $event->add_node('name', $model->name);
         $event->add_node('description', $model->description);
+        $event->add_node('menu', $model->menu);
 
         // venue
         $venue = $model->venue;
